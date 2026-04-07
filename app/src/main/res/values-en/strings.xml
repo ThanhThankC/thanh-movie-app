@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Movie Search</string>
+    <string name="home">Home</string>
+    <string name="search">Search</string>
+    <string name="favorite">Favorites</string>
+    <string name="search_hint">Search movies...</string>
+    <string name="add_favorite">Add to favorites</string>
+    <string name="remove_favorite">Remove from favorites</string>
+    <string name="no_result">No results found</string>
+    <string name="no_internet">No internet connection</string>
+</resources>
