@@ -4,23 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_margin="3dp"
+    android:clipToOutline="true"
+    android:orientation="vertical"
+    tools:targetApi="31">
 
     <ImageView
         android:id="@+id/img_poster"
         android:layout_width="150dp"
         android:layout_height="220dp"
+        android:importantForAccessibility="no"
         android:scaleType="centerCrop"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/txt_title"
         android:layout_width="150dp"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_marginTop="4dp"
         android:ellipsize="end"
         android:maxLines="2"
-        tools:text="Tên phim"
+        android:textAlignment="center"
         android:textColor="@color/white"
-        android:textSize="13sp" />
+        android:textSize="13sp"
+        tools:text=" Tên phim dài lắm và còn nữa" />
 </LinearLayout>
