@@ -16,7 +16,7 @@
         android:id="@+id/view_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/gradient_overlay" />
+        android:background="@drawable/gradient_overlay1" />
 
     <LinearLayout
         android:layout_width="match_parent"

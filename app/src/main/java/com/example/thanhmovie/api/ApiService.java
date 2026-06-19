@@ -15,6 +15,14 @@ public interface ApiService {
             @Query("page") int page
     );
 
+    @GET("discover/movie")
+    Call<MovieResponse> getMoviesByGenre(
+            @Query("api_key") String apiKey,
+            @Query("language") String language,
+            @Query("with_genres") int genreId,
+            @Query("page") int page
+    );
+
     @GET("search/movie")
     Call<MovieResponse> searchMovies(
             @Query("api_key") String apiKey,

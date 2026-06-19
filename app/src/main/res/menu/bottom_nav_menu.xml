@@ -4,6 +4,7 @@
         android:id="@+id/nav_home"
         android:icon="@drawable/ic_x_home"
         android:title="@string/home">
+
     </item>
     <item
         android:id="@+id/nav_search"

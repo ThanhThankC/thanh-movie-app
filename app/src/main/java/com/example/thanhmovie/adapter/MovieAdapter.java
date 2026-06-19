@@ -11,6 +11,8 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.thanhmovie.R;
 import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.utils.Constants;
@@ -48,24 +50,10 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         Movie movie = movieList.get(position);
         holder.txtTile.setText(movie.getTitle());
 
-        if (movie.getPosterPath() != null) {
-            Glide.with(holder.itemView.getContext())
-                    .load(Constants.IMAGE_BASE_URL + movie.getPosterPath())
-                    .placeholder(R.drawable.ic_background)
-                    .listener(new com.bumptech.glide.request.RequestListener<>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable com.bumptech.glide.load.engine.GlideException e, Object model,@NonNull com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target, boolean isFirstResource) {
-                            android.util.Log.e("GlideError", "Load failed for " + model, e);
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(@NonNull android.graphics.drawable.Drawable resource,@NonNull Object model,@NonNull com.bumptech.glide.request.target.Target<android.graphics.drawable.Drawable> target,@NonNull com.bumptech.glide.load.DataSource dataSource, boolean isFirstResource) {
-                            return false;
-                        }
-                    })
-                    .into(holder.imgPoster);
-        }
+        Glide.with(holder.itemView.getContext())
+                .load(Constants.IMAGE_BASE_URL + movie.getPosterPath())
+                .transform(new CenterCrop(), new RoundedCorners(20))
+                .into(holder.imgPoster);
 
     }
 

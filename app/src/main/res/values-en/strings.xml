@@ -8,4 +8,8 @@
     <string name="remove_favorite">Remove from favorites</string>
     <string name="no_result">No results found</string>
     <string name="no_internet">No internet connection</string>
+    <string name="genre_action">Action</string>
+    <string name="genre_romance">Romance</string>
+    <string name="genre_comedy">Comedy</string>
+    <string name="genre_fiction">Science fiction</string>
 </resources>

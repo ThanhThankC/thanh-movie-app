@@ -8,4 +8,8 @@
     <string name="remove_favorite">Bỏ yêu thích</string>
     <string name="no_result">Không tìm thấy kết quả</string>
     <string name="no_internet">Không có kết nối mạng</string>
+    <string name="genre_action">Hành động</string>
+    <string name="genre_romance">Tình cảm</string>
+    <string name="genre_comedy">Hài</string>
+    <string name="genre_fiction">Khoa học viễn tưởng</string>
 </resources>
