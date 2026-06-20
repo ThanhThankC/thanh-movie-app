@@ -6,10 +6,14 @@
     <string name="search_hint">Tìm kiếm phim...</string>
     <string name="add_favorite">Thêm yêu thích</string>
     <string name="remove_favorite">Bỏ yêu thích</string>
+    <string name="share">Chia sẻ</string>
     <string name="no_result">Không tìm thấy kết quả</string>
     <string name="no_internet">Không có kết nối mạng</string>
     <string name="genre_action">Hành động</string>
     <string name="genre_romance">Tình cảm</string>
     <string name="genre_comedy">Hài</string>
     <string name="genre_fiction">Khoa học viễn tưởng</string>
+    <string name="genre">Thể loại</string>
+    <string name="release_date">Ngày phát hành</string>
+    <string name="overview">Tổng quan</string>
 </resources>
