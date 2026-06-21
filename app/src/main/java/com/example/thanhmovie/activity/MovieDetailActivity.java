@@ -56,6 +56,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         TextView txtOverview = findViewById(R.id.txt_detail_overview);
         ImageView imgPoster = findViewById(R.id.img_detail_poster);
         ImageView imgBackdrop = findViewById(R.id.img_detail_backdrop);
+        ImageView imgStarFill = findViewById(R.id.img_star_fill);
 
         if (currentMovie == null) return;
 
@@ -64,6 +65,10 @@ public class MovieDetailActivity extends AppCompatActivity {
         txtReleaseDate.setText(currentMovie.getReleaseDate());
         txtGenre.setText(Constants.getGenreName(currentMovie.getGenreIds()));
         txtOverview.setText(currentMovie.getOverview());
+
+        double rating = currentMovie.getVoteAverage();
+        int level = (int) (rating / 10f * 10000);
+        imgStarFill.setImageLevel(level);
 
         Glide.with(this).load(Constants.IMAGE_BASE_URL + currentMovie.getPosterPath())
                 .transform(new CenterCrop(), new RoundedCorners(20)).into(imgPoster);
