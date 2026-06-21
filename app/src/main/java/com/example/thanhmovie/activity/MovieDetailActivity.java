@@ -1,7 +1,9 @@
 package com.example.thanhmovie.activity;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -39,7 +41,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         currentMovie = (Movie) getIntent().getSerializableExtra("movie_object");
         setupDetailScreen();
-        setupDetailFavorite();
+        setupFavoriteButton();
+        setupShareButton();
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
     }
@@ -66,7 +69,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         Glide.with(this).load(Constants.IMAGE_BASE_URL + currentMovie.getBackdropPath()).into(imgBackdrop);
     }
 
-    private void setupDetailFavorite(){
+    private void setupFavoriteButton(){
         ImageView iconFavorite = findViewById(R.id.icon_favorite);
         LinearLayout btnFavorite = findViewById(R.id.btn_favorite);
 
@@ -75,12 +78,20 @@ public class MovieDetailActivity extends AppCompatActivity {
         btnFavorite.setOnClickListener(v -> toggleFavorite(iconFavorite));
     }
 
-    private void checkIfFavorite(ImageView iconFavorite){
-        executor.execute(() -> {
-            FavoriteMovie existing = db.favoriteDao().getFavoriteMovie(currentMovie.getId());
-            isFavorite = existing != null;
+    private void setupShareButton(){
+        LinearLayout btnShare = findViewById(R.id.btn_share);
+        ImageView iconShare = findViewById(R.id.icon_share);
 
-            runOnUiThread(() -> updateFavoriteIcon(iconFavorite, false));
+        btnShare.setOnClickListener(v -> {
+            iconShare.setImageTintList(ColorStateList
+                    .valueOf(ContextCompat.getColor(this, R.color.light_green)));
+
+            shareMovie();
+
+            new Handler().postDelayed(() -> {
+                iconShare.setImageTintList(ColorStateList
+                        .valueOf(ContextCompat.getColor(this, R.color.white)));
+            }, 500);
         });
     }
 
@@ -111,6 +122,15 @@ public class MovieDetailActivity extends AppCompatActivity {
         });
     }
 
+    private void checkIfFavorite(ImageView iconFavorite){
+        executor.execute(() -> {
+            FavoriteMovie existing = db.favoriteDao().getFavoriteMovie(currentMovie.getId());
+            isFavorite = existing != null;
+
+            runOnUiThread(() -> updateFavoriteIcon(iconFavorite, false));
+        });
+    }
+
     private void updateFavoriteIcon(ImageView iconFavorite, boolean isClicked){
         int color = isFavorite ? ContextCompat.getColor(this, R.color.light_green)
                 : ContextCompat.getColor(this, R.color.white);
@@ -121,5 +141,20 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         if (isClicked)
             Toast.makeText(this, notice, Toast.LENGTH_SHORT).show();
+    }
+
+    private void shareMovie(){
+        String shareText = getString(R.string.share_movie_text,
+                currentMovie.getTitle(),
+                currentMovie.getVoteAverage(),
+                currentMovie.getOverview()
+        );
+        String chooserTitle = getString(R.string.share_movie_title);
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plant");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+
+        startActivity(Intent.createChooser(shareIntent, chooserTitle));
     }
 }

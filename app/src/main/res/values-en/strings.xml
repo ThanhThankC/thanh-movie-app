@@ -27,4 +27,6 @@
         <item>Top rated</item>
         <item>Most popular</item>
     </string-array>
+    <string name="share_movie_title">Share movie via</string>
+    <string name="share_movie_text">Watch "%1$s" on Movie Finder app!\nRating: %2$.1f/10\n%3$s</string>
 </resources>
