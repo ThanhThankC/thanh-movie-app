@@ -24,6 +24,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:paddingStart="25dp"
+                android:paddingEnd="25dp"
+                android:scaleType="fitXY"
                 app:srcCompat="@drawable/detail_bar_decor" />
 
             <include layout="@layout/layout_movie_info" />
@@ -33,6 +36,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:padding="10dp"
+                android:paddingStart="25dp"
+                android:paddingEnd="25dp"
+                android:scaleType="fitXY"
                 app:srcCompat="@drawable/detail_bar_decor" />
 
             <include layout="@layout/layout_movie_overview" />
@@ -43,6 +49,9 @@
                 android:layout_gravity="center"
                 android:paddingTop="15dp"
                 android:paddingBottom="30dp"
+                android:paddingStart="25dp"
+                android:paddingEnd="25dp"
+                android:scaleType="fitXY"
                 app:srcCompat="@drawable/detail_bar_decor" />
 
         </LinearLayout>

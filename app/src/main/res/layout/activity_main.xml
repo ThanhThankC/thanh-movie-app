@@ -18,6 +18,7 @@
         android:minHeight="54dp"
         app:itemActiveIndicatorStyle="@color/black"
         app:itemBackground="@color/black"
+        android:background="@color/black"
         app:itemIconTint="@color/bottom_nav_color"
         app:labelVisibilityMode="unlabeled"
         app:menu="@menu/bottom_nav_menu" />

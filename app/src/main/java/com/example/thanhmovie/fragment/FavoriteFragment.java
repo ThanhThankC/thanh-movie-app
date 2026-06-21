@@ -21,6 +21,7 @@ import com.example.thanhmovie.adapter.MovieAdapter;
 import com.example.thanhmovie.database.AppDatabase;
 import com.example.thanhmovie.database.FavoriteMovie;
 import com.example.thanhmovie.model.Movie;
+import com.example.thanhmovie.util.GridSpanUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class FavoriteFragment extends Fragment {
-
     private AppDatabase db;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     List<Movie> favoriteMovies = new ArrayList<>();
@@ -46,7 +46,8 @@ public class FavoriteFragment extends Fragment {
         setupSpinnerSort(view, getContext());
 
         recyclerView = view.findViewById(R.id.recycler_favorite);
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
+        int spanCount = GridSpanUtils.calculateSpanCount(getContext());
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),spanCount));
 
         favoriteAdapter = new MovieAdapter(favoriteMovies);
         recyclerView.setAdapter(favoriteAdapter);

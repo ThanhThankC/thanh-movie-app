@@ -50,7 +50,8 @@ public class SearchFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycler_search_result);
         edtSearch = view.findViewById(R.id.edt_search);
 
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
+        int spanCount = com.example.thanhmovie.util.GridSpanUtils.calculateSpanCount(getContext());
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),spanCount));
 
         searchResultList = new ArrayList<>();
         searchAdapter = new MovieAdapter(searchResultList);

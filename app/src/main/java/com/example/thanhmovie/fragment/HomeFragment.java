@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,12 +37,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class HomeFragment extends Fragment {
-//    private MovieAdapter movieAdapter;
-
     private ViewPager2 viewPagerSlide;
     private LinearLayout layoutDots;
     private LinearLayout layoutGenresContainer;
     private final List<GenreModel> genreSections = new ArrayList<>();
+    private Handler sliderHandler;
+    private Runnable sliderRunnable;
+    private static final long SLIDE_DELAY = 3000;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,49 +59,33 @@ public class HomeFragment extends Fragment {
         SlideAdapter slideAdapter = new SlideAdapter(slideList);
         viewPagerSlide.setAdapter(slideAdapter);
 
-        loadMovies(slideList, slideAdapter);
+        loadSlideMovies(slideList, slideAdapter);
 
-        setupGenreList();
+        setupGenreSections();
         renderGenreSections();
 
         return view;
     }
 
-    private void loadMovies(List<Movie> targetList, SlideAdapter adapter){
-        RetrofitClient.getInstance().getApiService()
-                .getPopularMovies(Constants.API_KEY, Constants.LANGUAGE_VI, 1)
-                .enqueue(new Callback<>() {
-                    @SuppressLint("NotifyDataSetChanged")
-                    @Override
-                    public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
-                        if (!isAdded() || getContext() == null) return;
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        toggleAutoSlide(!hidden);
+    }
 
-                        if (response.isSuccessful() && response.body() != null){
-                            List<Movie> allMovies = response.body().getResults();
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (sliderHandler != null && sliderRunnable != null) {
+            sliderHandler.removeCallbacks(sliderRunnable);
+        }
+    }
 
-                            targetList.clear();
-                            for (int i = 0; i < 7 && i < allMovies.size(); i++){
-                                targetList.add(allMovies.get(i));
-                            }
-                            adapter.notifyDataSetChanged();
-                            setupDots(targetList.size());
-
-                            if (!targetList.isEmpty()) {
-                                int startPosition = (Integer.MAX_VALUE / 2) - (Integer.MAX_VALUE / 2) % targetList.size();
-                                viewPagerSlide.setCurrentItem(startPosition, false);
-                            }
-                        }
-                        else {
-                            if (!isAdded() || getContext() == null) return;
-                            Log.e("API_ERROR", "Code: " + response.code());
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
-                        Toast.makeText(getContext(), getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
-                    }
-                });
+    private void setupGenreSections() {
+        genreSections.add(new GenreModel(28, getString(R.string.genre_action)));
+        genreSections.add(new GenreModel(10749, getString(R.string.genre_romance)));
+        genreSections.add(new GenreModel(35, getString(R.string.genre_comedy)));
+        genreSections.add(new GenreModel(878, getString(R.string.genre_fiction)));
     }
 
     private void setupDots(int count){
@@ -129,15 +116,17 @@ public class HomeFragment extends Fragment {
                     dots[i].setImageResource(i == realPosition ? R.drawable.dot_active : R.drawable.dot_inactive);
                 }
             }
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (state == ViewPager2.SCROLL_STATE_DRAGGING) {
+                    sliderHandler.removeCallbacks(sliderRunnable);
+                } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                    sliderHandler.removeCallbacks(sliderRunnable);
+                    sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
+                }
+            }
         }
         );
-    }
-
-    private void setupGenreList() {
-        genreSections.add(new GenreModel(28, getString(R.string.genre_action)));
-        genreSections.add(new GenreModel(10749, getString(R.string.genre_romance)));
-        genreSections.add(new GenreModel(35, getString(R.string.genre_comedy)));
-        genreSections.add(new GenreModel(878, getString(R.string.genre_fiction)));
     }
 
     private void renderGenreSections(){
@@ -155,17 +144,55 @@ public class HomeFragment extends Fragment {
                     new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false)
             );
 
-            List<Movie> genreMoiveList = new ArrayList<>();
-            MovieAdapter movieAdapter = new MovieAdapter(genreMoiveList);
+            List<Movie> genreMovieList = new ArrayList<>();
+            MovieAdapter movieAdapter = new MovieAdapter(genreMovieList);
             recyclerGenre.setAdapter(movieAdapter);
 
-            loadMoviesByGenre(genre.getGenreId(), genreMoiveList, movieAdapter);
+            loadMoviesByGenre(genre.getGenreId(), genreMovieList, movieAdapter);
 
             layoutGenresContainer.addView(view);
         }
     }
 
-    private void loadMoviesByGenre(int genreId, List<Movie> targeList, MovieAdapter adapter){
+    private void loadSlideMovies(List<Movie> targetList, SlideAdapter adapter){
+        RetrofitClient.getInstance().getApiService()
+                .getPopularMovies(Constants.API_KEY, Constants.LANGUAGE_VI, 1)
+                .enqueue(new Callback<>() {
+                    @SuppressLint("NotifyDataSetChanged")
+                    @Override
+                    public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
+                        if (!isAdded() || getContext() == null) return;
+
+                        if (response.isSuccessful() && response.body() != null){
+                            List<Movie> allMovies = response.body().getResults();
+
+                            targetList.clear();
+                            for (int i = 0; i < 7 && i < allMovies.size(); i++){
+                                targetList.add(allMovies.get(i));
+                            }
+                            adapter.notifyDataSetChanged();
+                            setupDots(targetList.size());
+                            startAutoSlide(targetList.size());
+
+                            if (!targetList.isEmpty()) {
+                                int startPosition = (Integer.MAX_VALUE / 2) - (Integer.MAX_VALUE / 2) % targetList.size();
+                                viewPagerSlide.setCurrentItem(startPosition, false);
+                            }
+                        }
+                        else {
+                            if (!isAdded() || getContext() == null) return;
+                            Log.e("API_ERROR", "Code: " + response.code());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
+                        Toast.makeText(getContext(), getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void loadMoviesByGenre(int genreId, List<Movie> targetList, MovieAdapter adapter){
         RetrofitClient.getInstance().getApiService()
                 .getMoviesByGenre(Constants.API_KEY, Constants.LANGUAGE_VI, genreId, 1)
                 .enqueue(new Callback<>() {
@@ -175,7 +202,7 @@ public class HomeFragment extends Fragment {
                         if (!isAdded() || getContext() == null) return;
 
                         if (response.isSuccessful() && response.body() != null){
-                            targeList.addAll(response.body().getResults());
+                            targetList.addAll(response.body().getResults());
                             adapter.notifyDataSetChanged();
                         }
                         else {
@@ -191,4 +218,23 @@ public class HomeFragment extends Fragment {
                 });
     }
 
+    private void startAutoSlide(int count){
+        if (count <= 1) return;
+
+        sliderHandler = new Handler(Looper.getMainLooper());
+        sliderRunnable = () -> {
+            if (!isAdded() || viewPagerSlide == null) return;
+            viewPagerSlide.setCurrentItem(viewPagerSlide.getCurrentItem() + 1, true);
+            sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
+        };
+        sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
+    }
+
+    private void toggleAutoSlide(boolean shouldRun) {
+        if (sliderHandler == null || sliderRunnable == null) return;
+        sliderHandler.removeCallbacks(sliderRunnable);
+        if (shouldRun) {
+            sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
+        }
+    }
 }

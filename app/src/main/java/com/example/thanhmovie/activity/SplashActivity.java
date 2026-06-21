@@ -13,6 +13,8 @@ import com.example.thanhmovie.R;
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
 
+    private static final long SPLASH_DELAY = 2000;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,6 +25,6 @@ public class SplashActivity extends AppCompatActivity {
             Intent intent = new Intent(SplashActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
-        }, 2000);
+        }, SPLASH_DELAY);
     }
 }

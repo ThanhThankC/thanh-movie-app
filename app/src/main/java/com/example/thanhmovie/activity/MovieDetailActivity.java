@@ -30,6 +30,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private Movie currentMovie;
     private boolean isFavorite;
+    private static final long SHARE_CLICKED_DELAY = 600;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +92,7 @@ public class MovieDetailActivity extends AppCompatActivity {
             new Handler().postDelayed(() -> {
                 iconShare.setImageTintList(ColorStateList
                         .valueOf(ContextCompat.getColor(this, R.color.white)));
-            }, 500);
+            }, SHARE_CLICKED_DELAY);
         });
     }
 

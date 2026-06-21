@@ -27,6 +27,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:lineSpacingExtra="4dp"
+            android:paddingStart="22dp"
+            android:paddingEnd="22dp"
             android:text="Các mô tả sau đây là danh cho bộ phim!"
             android:textColor="@color/white"
             android:textSize="14sp" />
