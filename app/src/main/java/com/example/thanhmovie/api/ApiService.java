@@ -27,6 +27,7 @@ public interface ApiService {
     Call<MovieResponse> searchMovies(
             @Query("api_key") String apiKey,
             @Query("query") String query,
-            @Query("language") String language
+            @Query("language") String language,
+            @Query("page") int page
     );
 }

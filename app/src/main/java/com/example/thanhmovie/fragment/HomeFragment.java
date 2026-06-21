@@ -1,7 +1,9 @@
 package com.example.thanhmovie.fragment;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -58,16 +60,7 @@ public class HomeFragment extends Fragment {
 
         setupGenreList();
         renderGenreSections();
-//        View view = inflater.inflate(R.layout.fragment_home1, container, false);
-//
-//        RecyclerView recyclerView;
-//        recyclerView = view.findViewById(R.id.recycler_movies);
-//        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
-//
-//        movieAdapter = new MovieAdapter(movieList);
-//        recyclerView.setAdapter(movieAdapter);
-//
-//
+
         return view;
     }
 
@@ -75,8 +68,9 @@ public class HomeFragment extends Fragment {
         RetrofitClient.getInstance().getApiService()
                 .getPopularMovies(Constants.API_KEY, Constants.LANGUAGE_VI, 1)
                 .enqueue(new Callback<>() {
+                    @SuppressLint("NotifyDataSetChanged")
                     @Override
-                    public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+                    public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
                         if (!isAdded() || getContext() == null) return;
 
                         if (response.isSuccessful() && response.body() != null){
@@ -101,7 +95,7 @@ public class HomeFragment extends Fragment {
                     }
 
                     @Override
-                    public void onFailure(Call<MovieResponse> call, Throwable t) {
+                    public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
                         Toast.makeText(getContext(), getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -165,18 +159,19 @@ public class HomeFragment extends Fragment {
             MovieAdapter movieAdapter = new MovieAdapter(genreMoiveList);
             recyclerGenre.setAdapter(movieAdapter);
 
-            loadMoivesByGenre(genre.getGenreId(), genreMoiveList, movieAdapter);
+            loadMoviesByGenre(genre.getGenreId(), genreMoiveList, movieAdapter);
 
             layoutGenresContainer.addView(view);
         }
     }
 
-    private void loadMoivesByGenre(int genreId, List<Movie> targeList, MovieAdapter adapter){
+    private void loadMoviesByGenre(int genreId, List<Movie> targeList, MovieAdapter adapter){
         RetrofitClient.getInstance().getApiService()
                 .getMoviesByGenre(Constants.API_KEY, Constants.LANGUAGE_VI, genreId, 1)
                 .enqueue(new Callback<>() {
+                    @SuppressLint("NotifyDataSetChanged")
                     @Override
-                    public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+                    public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
                         if (!isAdded() || getContext() == null) return;
 
                         if (response.isSuccessful() && response.body() != null){
@@ -190,7 +185,7 @@ public class HomeFragment extends Fragment {
                     }
 
                     @Override
-                    public void onFailure(Call<MovieResponse> call, Throwable t) {
+                    public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
                         Toast.makeText(getContext(), getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
                     }
                 });

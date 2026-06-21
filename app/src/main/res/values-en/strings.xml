@@ -16,4 +16,5 @@
     <string name="genre">Genre</string>
     <string name="release_date">Release date</string>
     <string name="overview">Overview</string>
+    <string name="page">Page</string>
 </resources>

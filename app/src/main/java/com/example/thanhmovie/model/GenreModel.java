@@ -1,8 +1,8 @@
 package com.example.thanhmovie.model;
 
 public class GenreModel {
-    private int genreId;
-    private String genreName;
+    private final int genreId;
+    private final String genreName;
 
     public GenreModel(int genreId, String genreName) {
         this.genreId = genreId;

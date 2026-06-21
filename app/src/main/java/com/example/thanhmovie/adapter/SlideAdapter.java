@@ -57,7 +57,7 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.SlideViewHol
 
         holder.txtTitle.setText(movie.getTitle());
         holder.txtRating.setText(String.format("%.1f/10", movie.getVoteAverage()));
-        holder.txtGenre.setText(getGenreName(movie.getGenreIds()));
+        holder.txtGenre.setText(Constants.getGenreName(movie.getGenreIds()));
         holder.txtYear.setText(movie.getReleaseDate().substring(0,4));
 
         Glide.with(holder.itemView.getContext())
@@ -78,16 +78,4 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.SlideViewHol
 
     @Override
     public int getItemCount() { return slideList.isEmpty() ? 0 : VIRTUAL_COUNT; }
-
-    private String getGenreName(List<Integer> genreIds){
-        if (genreIds == null || genreIds.isEmpty()) return "";
-        int id = genreIds.get(0);
-
-        if (id == 28) return "Hành động";
-        if (id == 35) return "Hài";
-        if (id == 10749) return "Tình cảm";
-        if (id == 27) return "Kinh dị";
-        if (id == 18) return "Tâm lý";
-        return "Khác";
-    }
 }
