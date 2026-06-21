@@ -81,7 +81,7 @@ public class HomeFragment extends Fragment {
                                 targetList.add(allMovies.get(i));
                             }
                             adapter.notifyDataSetChanged();
-                            SetupDots(targetList.size());
+                            setupDots(targetList.size());
 
                             if (!targetList.isEmpty()) {
                                 int startPosition = (Integer.MAX_VALUE / 2) - (Integer.MAX_VALUE / 2) % targetList.size();
@@ -101,7 +101,7 @@ public class HomeFragment extends Fragment {
                 });
     }
 
-    private void SetupDots(int count){
+    private void setupDots(int count){
         layoutDots.removeAllViews();
         ImageView[] dots = new ImageView[count];
 

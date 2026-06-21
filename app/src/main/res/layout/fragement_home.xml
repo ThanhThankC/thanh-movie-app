@@ -29,10 +29,12 @@
             <LinearLayout
                 android:id="@+id/layout_header"
                 android:layout_width="match_parent"
-                android:layout_height="124dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="34dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="16dp">
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
 
                 <ImageView
                     android:id="@+id/logo_app"

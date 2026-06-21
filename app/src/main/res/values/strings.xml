@@ -17,6 +17,14 @@
     <string name="release_date">Ngày phát hành</string>
     <string name="overview">Tổng quan</string>
     <string name="page">Trang</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment">Xin chào</string>
+    <string name="favorite_list">Danh sách yêu thích</string>
+    <string name="no_favorite_yet">Chưa có phim yêu thích nào</string>
+    <string-array name="sort_options">
+        <item>Mới nhất</item>
+        <item>Cũ nhất</item>
+        <item>Tên phim (A-Z)</item>
+        <item>Đánh giá cao</item>
+        <item>Phổ biến nhất</item>
+    </string-array>
 </resources>

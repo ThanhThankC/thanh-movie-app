@@ -42,4 +42,13 @@ public class Movie implements Serializable {
     public String getBackdropPath() { return backdropPath; }
     public double getPopularity() { return popularity; }
     public List<Integer> getGenreIds() { return genreIds; }
+
+    public void setId(int id) { this.id = id; }
+    public void setTitle(String title) { this.title = title; }
+    public void setPosterPath(String posterPath) { this.posterPath = posterPath; }
+    public void setBackdropPath(String backdropPath) { this.backdropPath = backdropPath; }
+    public void setOverview(String overview) { this.overview = overview; }
+    public void setVoteAverage(double voteAverage) { this.voteAverage = voteAverage; }
+    public void setReleaseDate(String releaseDate) { this.releaseDate = releaseDate; }
+    public void setPopularity(double popularity) { this.popularity = popularity; }
 }

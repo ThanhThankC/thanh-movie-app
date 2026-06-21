@@ -56,13 +56,13 @@ public class SearchFragment extends Fragment {
         searchAdapter = new MovieAdapter(searchResultList);
         recyclerView.setAdapter(searchAdapter);
 
-        OnEditSearchChanged();
-        OnRecyclerScrolling();
+        onEditSearchChanged();
+        onRecyclerScrolling();
 
         return view;
     }
 
-    private void OnEditSearchChanged(){
+    private void onEditSearchChanged(){
         edtSearch.addTextChangedListener(new TextWatcher() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
@@ -85,7 +85,7 @@ public class SearchFragment extends Fragment {
         });
     }
 
-    private void OnRecyclerScrolling(){
+    private void onRecyclerScrolling(){
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {

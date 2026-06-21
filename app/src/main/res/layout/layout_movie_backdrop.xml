@@ -44,6 +44,8 @@
             android:layout_height="40dp"
             android:layout_marginBottom="10dp"
             android:text="TextView"
+            android:shadowColor="@color/dark_green"
+            android:shadowRadius="10"
             android:textAlignment="center"
             android:textColor="@color/white"
             android:textSize="22sp"

@@ -17,4 +17,14 @@
     <string name="release_date">Release date</string>
     <string name="overview">Overview</string>
     <string name="page">Page</string>
+    <string name="hello_blank_fragment">Hello</string>
+    <string name="favorite_list">My favorites</string>
+    <string name="no_favorite_yet">No favorites yet</string>
+    <string-array name="sort_options">
+        <item>Newest</item>
+        <item>Oldest</item>
+        <item>Title (A-Z)</item>
+        <item>Top rated</item>
+        <item>Most popular</item>
+    </string-array>
 </resources>

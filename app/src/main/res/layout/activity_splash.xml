@@ -12,6 +12,7 @@
         android:layout_width="150dp"
         android:layout_height="140dp"
         android:foreground="@drawable/ic_foreground"
+        android:importantForAccessibility="no"
         app:srcCompat="@drawable/ic_launcher_foreground" />
 
     <TextView
