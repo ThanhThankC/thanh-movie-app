@@ -8,7 +8,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -30,12 +29,12 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     public static class MovieViewHolder extends RecyclerView.ViewHolder {
         ImageView imgPoster;
-        TextView txtTile;
+        TextView txtTitle;
 
         public  MovieViewHolder(View itemView){
             super(itemView);
             imgPoster = itemView.findViewById(R.id.img_poster);
-            txtTile = itemView.findViewById(R.id.txt_title);
+            txtTitle = itemView.findViewById(R.id.txt_title);
         }
     }
 
@@ -50,7 +49,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @Override
     public void onBindViewHolder(MovieViewHolder holder, int position) {
         Movie movie = movieList.get(position);
-        holder.txtTile.setText(movie.getTitle());
+        holder.txtTitle.setText(movie.getTitle());
 
         Glide.with(holder.itemView.getContext())
                 .load(Constants.IMAGE_BASE_URL + movie.getPosterPath())

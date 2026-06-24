@@ -1,24 +1,33 @@
 package com.example.thanhmovie.fragment;
 
+import android.content.Context;
+import android.os.Handler;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.thanhmovie.R;
 import com.example.thanhmovie.adapter.MovieAdapter;
+import com.example.thanhmovie.adapter.SuggestAdapter;
 import com.example.thanhmovie.api.RetrofitClient;
 import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.model.MovieResponse;
@@ -34,17 +43,26 @@ import retrofit2.Response;
 public class SearchFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private EditText edtSearch;
     private List<Movie> searchResultList;
+    private List<Movie> suggestResultList;
     private MovieAdapter searchAdapter;
+    private SuggestAdapter suggestAdapter;
+    private LinearLayout suggestLayout;
+    private EditText edtSearch;
+    private ImageButton btnClear;
+    private TextView txtSeeMore;
+
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
+    private Runnable searchRunnable;
 
     private String currentQuery;
     private int currentPage;
     private boolean isLoading;
 
+    private static final long SEARCH_DELAY = 500;
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_search, container, false);
     }
 
@@ -52,31 +70,51 @@ public class SearchFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         recyclerView = view.findViewById(R.id.recycler_search_result);
+        RecyclerView suggestRecyclerView = view.findViewById(R.id.recycler_search_suggest);
         edtSearch = view.findViewById(R.id.edt_search);
+        btnClear = view.findViewById(R.id.btn_search_clear);
+        suggestLayout = view.findViewById(R.id.layout_suggest);
+        txtSeeMore = view.findViewById(R.id.txt_see_more);
 
         int spanCount = com.example.thanhmovie.util.GridSpanUtils.calculateSpanCount(getContext());
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(),spanCount));
+
+        suggestRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         searchResultList = new ArrayList<>();
         searchAdapter = new MovieAdapter(searchResultList);
         recyclerView.setAdapter(searchAdapter);
 
-        onEditSearchChanged();
+        suggestResultList = new ArrayList<>();
+        suggestAdapter = new SuggestAdapter(suggestResultList);
+        suggestRecyclerView.setAdapter(suggestAdapter);
+
+        onEditSearchChanged(edtSearch);
+        onEditSearchEnter();
         onRecyclerScrolling();
+
+        btnClear.setOnClickListener(v -> edtSearch.setText(""));
     }
 
-    private void onEditSearchChanged(){
+
+    private void onEditSearchChanged(EditText edtSearch){
         edtSearch.addTextChangedListener(new TextWatcher() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void afterTextChanged(Editable s) {
                 currentQuery = s.toString().trim();
-                currentPage = 1;
-                searchResultList.clear();
-                searchAdapter.notifyDataSetChanged();
 
-                if (!currentQuery.isEmpty()){
-                    searchMovies(currentQuery, currentPage);
+                searchHandler.removeCallbacks(searchRunnable);
+
+                toggleSuggestVisual(currentQuery.isEmpty());
+
+                if (!currentQuery.isEmpty()) {
+                    searchRunnable = () -> {
+                        currentPage = 1;
+                        suggestResultList.clear();
+                        searchMovies(currentQuery, currentPage, true);
+                    };
+                    searchHandler.postDelayed(searchRunnable, SEARCH_DELAY);
                 }
             }
 
@@ -86,6 +124,20 @@ public class SearchFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
         });
+    }
+
+    private void onEditSearchEnter(){
+        edtSearch.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || actionId == EditorInfo.IME_ACTION_DONE) {
+                performFullSearch();
+                return true;
+            }
+            return false;
+        });
+
+        txtSeeMore.setOnClickListener(v -> {performFullSearch();});
+
+        edtSearch.setOnClickListener(v -> {toggleSuggestVisual(currentQuery.isEmpty());});
     }
 
     private void onRecyclerScrolling(){
@@ -101,13 +153,29 @@ public class SearchFragment extends Fragment {
 
                 if (!isLoading && lastVisibleItem >= totalItemCount - 4){
                     currentPage++;
-                    searchMovies(currentQuery, currentPage);
+                    searchMovies(currentQuery, currentPage,false);
                 }
             }
         });
     }
 
-    private void searchMovies(String query, int page){
+    private void performFullSearch() {
+        if (currentQuery == null || currentQuery.isEmpty()) return;
+
+        searchHandler.removeCallbacks(searchRunnable);
+
+        currentPage = 1;
+        searchResultList.clear();
+        searchAdapter.notifyDataSetChanged();
+        searchMovies(currentQuery, currentPage, false);
+
+        toggleSuggestVisual(true);
+
+        InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(edtSearch.getWindowToken(), 0);
+    }
+
+    private void searchMovies(String query, int page, boolean isSuggest){
         isLoading = true;
         RetrofitClient.getInstance().getApiService().searchMovies(Constants.API_KEY, query, Constants.LANGUAGE_VI, page)
                 .enqueue(new Callback<>() {
@@ -115,22 +183,38 @@ public class SearchFragment extends Fragment {
                     @Override
                     public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
                         isLoading = false;
-                        if (response.isSuccessful() && response.body() != null){
+                        if (!response.isSuccessful() || response.body() == null) return;
+
+                        if (isSuggest){
+                            suggestResultList.clear();
+                            suggestResultList.addAll(response.body().getResults());
+                            suggestAdapter.notifyDataSetChanged();
+                        }
+                        else {
                             int oldSize = searchResultList.size();
                             searchResultList.addAll(response.body().getResults());
                             searchAdapter.notifyItemRangeInserted(oldSize, response.body().getResults().size());
                         }
-                        else {
-                            Log.e("API_ERROR", "Code: " + response.code());
-                        }
-                    }
 
+                        String text = suggestResultList.isEmpty()  ? getString(R.string.no_result) : getString(R.string.see_more);
+                        txtSeeMore.setText(text);
+                    }
                     @Override
                     public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
                         isLoading = false;
                         Toast.makeText(getContext(), getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
 
+    private void toggleSuggestVisual(boolean isHide){
+        int targetVisibility = isHide ? View.GONE : View.VISIBLE;
+
+        if (btnClear.getVisibility() != targetVisibility) {
+            btnClear.setVisibility(targetVisibility);
+        }
+        if (suggestLayout.getVisibility() != targetVisibility) {
+            suggestLayout.setVisibility(targetVisibility);
+        }
     }
 }

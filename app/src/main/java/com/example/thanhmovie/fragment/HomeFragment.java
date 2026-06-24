@@ -42,13 +42,12 @@ public class HomeFragment extends Fragment {
     private LinearLayout layoutDots;
     private LinearLayout layoutGenresContainer;
     private final List<GenreModel> genreSections = new ArrayList<>();
-    private Handler sliderHandler;
+    private final Handler sliderHandler = new Handler(Looper.getMainLooper());
     private Runnable sliderRunnable;
     private static final long SLIDE_DELAY = 3000;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragement_home, container, false);
     }
 
@@ -78,7 +77,7 @@ public class HomeFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (sliderHandler != null && sliderRunnable != null) {
+        if (sliderRunnable != null) {
             sliderHandler.removeCallbacks(sliderRunnable);
         }
     }
@@ -223,7 +222,6 @@ public class HomeFragment extends Fragment {
     private void startAutoSlide(int count){
         if (count <= 1) return;
 
-        sliderHandler = new Handler(Looper.getMainLooper());
         sliderRunnable = () -> {
             if (!isAdded() || viewPagerSlide == null) return;
             viewPagerSlide.setCurrentItem(viewPagerSlide.getCurrentItem() + 1, true);
@@ -233,7 +231,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void toggleAutoSlide(boolean shouldRun) {
-        if (sliderHandler == null || sliderRunnable == null) return;
+        if (sliderRunnable == null) return;
         sliderHandler.removeCallbacks(sliderRunnable);
         if (shouldRun) {
             sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);

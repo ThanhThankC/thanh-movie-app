@@ -39,8 +39,7 @@ public class FavoriteFragment extends Fragment {
     private int currentSortIndex = 0;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         db = AppDatabase.getInstance(getContext());
         return inflater.inflate(R.layout.fragment_favorite, container, false);
     }

@@ -10,7 +10,7 @@ public class Constants {
     public static final String LANGUAGE_EN = "en-US";
 
     public static String getGenreName(List<Integer> genreIds){
-        if (genreIds == null || genreIds.isEmpty()) return "";
+        if (genreIds == null || genreIds.isEmpty()) return "Khác";
         int id = genreIds.get(0);
 
         if (id == 28) return "Hành động";

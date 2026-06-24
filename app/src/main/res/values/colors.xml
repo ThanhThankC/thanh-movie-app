@@ -6,5 +6,5 @@
     <color name="light_green">#8FFD92</color>
     <color name="dark_gray">#6F6F6F</color>
     <color name="light_gray">#9C9C9C</color>
-    <color name="dark_gray_transparent">#EB262A27</color>
+    <color name="black_transparent">#EB262A27</color>
 </resources>
