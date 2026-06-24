@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,9 +49,12 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragement_home, container, false);
+    }
 
-        View view = inflater.inflate(R.layout.fragement_home, container, false);
-
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         viewPagerSlide = view.findViewById(R.id.viewpager_slide);
         layoutDots = view.findViewById(R.id.layout_dots);
         layoutGenresContainer = view.findViewById(R.id.layout_genres_container);
@@ -63,8 +67,6 @@ public class HomeFragment extends Fragment {
 
         setupGenreSections();
         renderGenreSections();
-
-        return view;
     }
 
     @Override

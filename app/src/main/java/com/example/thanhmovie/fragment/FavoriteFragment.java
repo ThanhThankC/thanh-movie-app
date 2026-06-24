@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,9 +42,12 @@ public class FavoriteFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         db = AppDatabase.getInstance(getContext());
+        return inflater.inflate(R.layout.fragment_favorite, container, false);
+    }
 
-        View view = inflater.inflate(R.layout.fragment_favorite, container, false);
-
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         setupSpinnerSort(view, getContext());
 
         recyclerView = view.findViewById(R.id.recycler_favorite);
@@ -53,8 +58,6 @@ public class FavoriteFragment extends Fragment {
         recyclerView.setAdapter(favoriteAdapter);
 
         loadFavorites();
-
-        return view;
     }
 
     private void setupSpinnerSort(View view, Context context){

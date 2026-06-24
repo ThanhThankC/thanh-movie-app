@@ -64,6 +64,8 @@
                 android:paddingBottom="10dp"
                 android:text="0/10"
                 android:textAlignment="center"
+                android:shadowColor="@color/black"
+                android:shadowRadius="2"
                 android:textColor="@color/white" />
 
             <TextView
@@ -76,6 +78,8 @@
                 android:paddingBottom="10dp"
                 android:text="Hành động"
                 android:textAlignment="center"
+                android:shadowColor="@color/black"
+                android:shadowRadius="2"
                 android:textColor="@color/white" />
 
             <TextView
@@ -88,6 +92,8 @@
                 android:paddingBottom="10dp"
                 android:text="2014"
                 android:textAlignment="center"
+                android:shadowColor="@color/black"
+                android:shadowRadius="2"
                 android:textColor="@color/white" />
 
         </LinearLayout>
