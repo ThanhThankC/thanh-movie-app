@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -32,6 +33,8 @@ import com.example.thanhmovie.api.RetrofitClient;
 import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.model.MovieResponse;
 import com.example.thanhmovie.utils.Constants;
+import com.example.thanhmovie.utils.SearchHistoryManager;
+import com.google.android.flexbox.FlexboxLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,25 +44,27 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SearchFragment extends Fragment {
-
-    private RecyclerView recyclerView;
     private List<Movie> searchResultList;
     private List<Movie> suggestResultList;
     private MovieAdapter searchAdapter;
     private SuggestAdapter suggestAdapter;
-    private LinearLayout suggestLayout;
+    private RecyclerView recyclerView;
+    private FlexboxLayout layoutHistory;
+    private LinearLayout layoutSuggest;
     private EditText edtSearch;
+    private TextView txtNoResult;
     private ImageButton btnClear;
     private TextView txtSeeMore;
 
+    private SearchHistoryManager historyManager;
     private final Handler searchHandler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
 
     private String currentQuery;
     private int currentPage;
     private boolean isLoading;
-
     private static final long SEARCH_DELAY = 500;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -73,8 +78,13 @@ public class SearchFragment extends Fragment {
         RecyclerView suggestRecyclerView = view.findViewById(R.id.recycler_search_suggest);
         edtSearch = view.findViewById(R.id.edt_search);
         btnClear = view.findViewById(R.id.btn_search_clear);
-        suggestLayout = view.findViewById(R.id.layout_suggest);
+        layoutSuggest = view.findViewById(R.id.layout_suggest);
         txtSeeMore = view.findViewById(R.id.txt_see_more);
+        layoutHistory = view.findViewById(R.id.layout_history);
+        txtNoResult = view.findViewById(R.id.txt_search_no_result);
+
+        if (getContext() != null)
+            historyManager = new SearchHistoryManager(getContext());
 
         int spanCount = com.example.thanhmovie.util.GridSpanUtils.calculateSpanCount(getContext());
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(),spanCount));
@@ -89,13 +99,47 @@ public class SearchFragment extends Fragment {
         suggestAdapter = new SuggestAdapter(suggestResultList);
         suggestRecyclerView.setAdapter(suggestAdapter);
 
+        suggestAdapter.setOnMovieClickListener(movie -> {
+            historyManager.addKeyword(movie.getTitle());
+            renderHistoryChips();
+        });
+
+        renderHistoryChips();
         onEditSearchChanged(edtSearch);
         onEditSearchEnter();
         onRecyclerScrolling();
+        onOutsideTouched();
 
         btnClear.setOnClickListener(v -> edtSearch.setText(""));
     }
 
+    private void renderHistoryChips(){
+        layoutHistory.removeAllViews();
+        List<String> historyList = historyManager.getHistoryToShow();
+
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+
+        for (String keyword : historyList){
+            View chipView = inflater.inflate(R.layout.layout_chip_history, layoutHistory, false);
+
+            TextView txtKeyword = chipView.findViewById(R.id.txt_history_keyword);
+            ImageButton btnRemove = chipView.findViewById(R.id.btn_history_remove);
+
+            txtKeyword.setText(keyword);
+
+            chipView.setOnClickListener(v -> {
+                edtSearch.setText(keyword);
+                performFullSearch();
+            });
+
+            btnRemove.setOnClickListener(v ->{
+                historyManager.removeKeyword(keyword);
+                renderHistoryChips();
+            });
+
+            layoutHistory.addView(chipView);
+        }
+    }
 
     private void onEditSearchChanged(EditText edtSearch){
         edtSearch.addTextChangedListener(new TextWatcher() {
@@ -106,7 +150,8 @@ public class SearchFragment extends Fragment {
 
                 searchHandler.removeCallbacks(searchRunnable);
 
-                toggleSuggestVisual(currentQuery.isEmpty());
+                showSuggestLayout(!currentQuery.isEmpty());
+                showHistoryLayout(currentQuery.isEmpty());
 
                 if (!currentQuery.isEmpty()) {
                     searchRunnable = () -> {
@@ -135,9 +180,12 @@ public class SearchFragment extends Fragment {
             return false;
         });
 
-        txtSeeMore.setOnClickListener(v -> {performFullSearch();});
+        txtSeeMore.setOnClickListener(v -> performFullSearch());
 
-        edtSearch.setOnClickListener(v -> {toggleSuggestVisual(currentQuery.isEmpty());});
+        edtSearch.setOnClickListener(v ->{
+            showSuggestLayout(!currentQuery.isEmpty());
+            showHistoryLayout(currentQuery.isEmpty());
+        });
     }
 
     private void onRecyclerScrolling(){
@@ -159,8 +207,25 @@ public class SearchFragment extends Fragment {
         });
     }
 
+    private void onOutsideTouched(){
+        recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                if (e.getAction() == MotionEvent.ACTION_UP) {
+                    hideAllOverlays();
+                }
+                return false;
+            }
+        });
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     private void performFullSearch() {
         if (currentQuery == null || currentQuery.isEmpty()) return;
+
+        historyManager.addKeyword(currentQuery);
+        renderHistoryChips();
+        showHistoryLayout(false);
 
         searchHandler.removeCallbacks(searchRunnable);
 
@@ -169,7 +234,7 @@ public class SearchFragment extends Fragment {
         searchAdapter.notifyDataSetChanged();
         searchMovies(currentQuery, currentPage, false);
 
-        toggleSuggestVisual(true);
+        showSuggestLayout(false);
 
         InputMethodManager imm = (InputMethodManager)getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(edtSearch.getWindowToken(), 0);
@@ -189,15 +254,15 @@ public class SearchFragment extends Fragment {
                             suggestResultList.clear();
                             suggestResultList.addAll(response.body().getResults());
                             suggestAdapter.notifyDataSetChanged();
+                            String text = suggestResultList.isEmpty()  ? getString(R.string.no_result) : getString(R.string.see_more);
+                            txtSeeMore.setText(text);
                         }
                         else {
                             int oldSize = searchResultList.size();
                             searchResultList.addAll(response.body().getResults());
                             searchAdapter.notifyItemRangeInserted(oldSize, response.body().getResults().size());
+                            showTextNoResult(searchResultList.isEmpty());
                         }
-
-                        String text = suggestResultList.isEmpty()  ? getString(R.string.no_result) : getString(R.string.see_more);
-                        txtSeeMore.setText(text);
                     }
                     @Override
                     public void onFailure(@NonNull Call<MovieResponse> call, @NonNull Throwable t) {
@@ -207,14 +272,38 @@ public class SearchFragment extends Fragment {
                 });
     }
 
-    private void toggleSuggestVisual(boolean isHide){
-        int targetVisibility = isHide ? View.GONE : View.VISIBLE;
+    private void showSuggestLayout(boolean isShow){
+        int targetVisibility = isShow ? View.VISIBLE : View.GONE;
 
         if (btnClear.getVisibility() != targetVisibility) {
             btnClear.setVisibility(targetVisibility);
         }
-        if (suggestLayout.getVisibility() != targetVisibility) {
-            suggestLayout.setVisibility(targetVisibility);
+        if (layoutSuggest.getVisibility() != targetVisibility) {
+            layoutSuggest.setVisibility(targetVisibility);
         }
+    }
+
+    private void showHistoryLayout(boolean isShow){
+        int targetVisibility = isShow ? View.VISIBLE : View.GONE;
+
+        if (layoutHistory.getVisibility() != targetVisibility) {
+            layoutHistory.setVisibility(targetVisibility);
+        }
+    }
+
+    private void showTextNoResult(boolean isShow){
+        int targetVisibility = isShow ? View.VISIBLE : View.GONE;
+
+        if (txtNoResult.getVisibility() != targetVisibility) {
+            txtNoResult.setVisibility(targetVisibility);
+        }
+    }
+
+    private void hideAllOverlays() {
+        showSuggestLayout(false);
+        showHistoryLayout(false);
+
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(edtSearch.getWindowToken(), 0);
     }
 }

@@ -30,4 +30,8 @@
     <string name="share_movie_title">Chia sẻ phim qua</string>
     <string name="share_movie_text">Xem phim "%1$s" trên app Tra Cứu Phim!\nĐánh giá: %2$.1f/10\n%3$s</string>
     <string name="see_more">Xem thêm >></string>
+    <string name="delete_history_title">Xóa lịch sử</string>
+    <string name="delete_history_message">Xóa từ khóa \"%s\" khỏi lịch sử tìm kiếm?</string>
+    <string name="delete_history_positive">Xóa</string>
+    <string name="delete_history_negative">Hủy</string>
 </resources>

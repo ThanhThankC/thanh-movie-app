@@ -24,8 +24,8 @@
             android:ems="10"
             android:hint="@string/search_hint"
             android:inputType="text"
-            android:paddingStart="40dp"
-            android:paddingEnd="84dp"
+            android:paddingStart="50dp"
+            android:paddingEnd="30dp"
             android:paddingBottom="2dp"
             android:imeOptions="actionSearch"
             android:textAlignment="textStart"
@@ -35,7 +35,7 @@
             android:id="@+id/img_search"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_gravity="left|center_vertical"
+            android:layout_gravity="start|center_vertical"
             android:layout_marginLeft="6dp"
             android:background="@android:color/transparent"
             app:srcCompat="@drawable/ic_x_search"
@@ -45,7 +45,7 @@
             android:id="@+id/btn_search_clear"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_gravity="right|center_vertical"
+            android:layout_gravity="end|center_vertical"
             android:layout_marginRight="5dp"
             android:background="@android:color/transparent"
             app:srcCompat="@drawable/ic_x_clear"
@@ -56,14 +56,46 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:paddingTop="10dp"
+        >
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_search_result"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginStart="24dp"
+            android:visibility="visible"
             android:paddingTop="20dp" />
+        
+        <TextView
+            android:id="@+id/txt_search_no_result"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/no_result"
+            android:gravity="center"
+            android:visibility="gone"
+            android:textSize="16sp"
+            />
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/layout_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:padding="10dp"
+            android:background="@drawable/rounded_dropdown_bg"
+            app:flexWrap="wrap"
+            app:flexDirection="row"
+            app:alignItems="flex_start"
+            app:justifyContent="flex_start">
+
+            <include layout="@layout/layout_chip_history"/>
+            <include layout="@layout/layout_chip_history"/>
+            <include layout="@layout/layout_chip_history"/>
+
+        </com.google.android.flexbox.FlexboxLayout>
 
         <LinearLayout
             android:id="@+id/layout_suggest"

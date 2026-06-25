@@ -24,6 +24,16 @@ public class SuggestAdapter extends RecyclerView.Adapter<SuggestAdapter.SuggestV
         this.suggestList = movieList;
     }
 
+    public interface OnMovieClickListener {
+        void onMovieClick(Movie movie);
+    }
+
+    private OnMovieClickListener listener;
+
+    public void setOnMovieClickListener(OnMovieClickListener listener) {
+        this.listener = listener;
+    }
+
     public static class SuggestViewHolder extends RecyclerView.ViewHolder{
         TextView txtTitle, txtGenre, txtYear;
 
@@ -54,6 +64,10 @@ public class SuggestAdapter extends RecyclerView.Adapter<SuggestAdapter.SuggestV
         holder.txtGenre.setText(Constants.getGenreName(movie.getGenreIds()));
 
         holder.itemView.setOnClickListener(v ->{
+            if (listener != null) {
+                listener.onMovieClick(movie);
+            }
+
             Intent intent = new Intent(v.getContext(), MovieDetailActivity.class);
             intent.putExtra("movie_object", movie);
             v.getContext().startActivity(intent);
