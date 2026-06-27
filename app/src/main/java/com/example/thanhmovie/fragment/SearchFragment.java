@@ -1,6 +1,7 @@
 package com.example.thanhmovie.fragment;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +35,7 @@ import com.example.thanhmovie.api.RetrofitClient;
 import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.model.MovieResponse;
 import com.example.thanhmovie.utils.Constants;
+import com.example.thanhmovie.utils.OnScrollDirectionListener;
 import com.example.thanhmovie.utils.SearchHistoryManager;
 import com.google.android.flexbox.FlexboxLayout;
 
@@ -55,11 +58,13 @@ public class SearchFragment extends Fragment {
     private TextView txtNoResult;
     private ImageButton btnClear;
     private TextView txtSeeMore;
+    private OnScrollDirectionListener scrollListener;
 
     private SearchHistoryManager historyManager;
     private final Handler searchHandler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
 
+    private boolean isHeaderVisible = true;
     private String currentQuery;
     private int currentPage;
     private boolean isLoading;
@@ -105,12 +110,22 @@ public class SearchFragment extends Fragment {
         });
 
         renderHistoryChips();
+        setupScrollBehavior();
+        setupKeyboardListener(view);
         onEditSearchChanged(edtSearch);
         onEditSearchEnter();
         onRecyclerScrolling();
         onOutsideTouched();
 
         btnClear.setOnClickListener(v -> edtSearch.setText(""));
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnScrollDirectionListener) {
+            scrollListener = (OnScrollDirectionListener) context;
+        }
     }
 
     private void renderHistoryChips(){
@@ -139,6 +154,40 @@ public class SearchFragment extends Fragment {
 
             layoutHistory.addView(chipView);
         }
+    }
+
+    private void setupScrollBehavior(){
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (dy > 0 && isHeaderVisible) {
+                    isHeaderVisible = false;
+                    if (scrollListener != null) scrollListener.onScrollUp();
+                } else if (dy < 0 && !isHeaderVisible) {
+                    isHeaderVisible = true;
+                    if (scrollListener != null) scrollListener.onScrollDown();
+                }
+            }
+        });
+    }
+
+    private void setupKeyboardListener(View rootView) {
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            Rect r = new Rect();
+            rootView.getWindowVisibleDisplayFrame(r);
+            int screenHeight = rootView.getRootView().getHeight();
+            int keypadHeight = screenHeight - r.bottom;
+
+            boolean isKeyboardOpen = keypadHeight > screenHeight * 0.15;
+
+            if (isKeyboardOpen) {
+                if (scrollListener != null) scrollListener.onScrollUp();
+            } else {
+                if (scrollListener != null) scrollListener.onScrollDown();
+            }
+        });
     }
 
     private void onEditSearchChanged(EditText edtSearch){
@@ -281,6 +330,8 @@ public class SearchFragment extends Fragment {
         if (layoutSuggest.getVisibility() != targetVisibility) {
             layoutSuggest.setVisibility(targetVisibility);
         }
+
+        if (scrollListener == null) return;
     }
 
     private void showHistoryLayout(boolean isShow){

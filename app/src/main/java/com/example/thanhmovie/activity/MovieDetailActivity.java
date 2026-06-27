@@ -76,12 +76,13 @@ public class MovieDetailActivity extends AppCompatActivity {
     }
 
     private void setupFavoriteButton(){
-        ImageView iconFavorite = findViewById(R.id.icon_favorite);
+        ImageView iconFavorite = findViewById(R.id.icon_btn_favorite);
+        TextView txtFavorite = findViewById(R.id.txt_btn_favorite);
         LinearLayout btnFavorite = findViewById(R.id.btn_favorite);
 
-        checkIfFavorite(iconFavorite);
+        checkIfFavorite(iconFavorite, txtFavorite);
 
-        btnFavorite.setOnClickListener(v -> toggleFavorite(iconFavorite));
+        btnFavorite.setOnClickListener(v -> toggleFavorite(iconFavorite, txtFavorite));
     }
 
     private void setupShareButton(){
@@ -101,7 +102,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         });
     }
 
-    private void toggleFavorite(ImageView iconFavorite){
+    private void toggleFavorite(ImageView iconFavorite, TextView txtFavorite){
         executor.execute(() -> {
             if (isFavorite){
                 FavoriteMovie existing = db.favoriteDao().getFavoriteMovie(currentMovie.getId());
@@ -124,26 +125,28 @@ public class MovieDetailActivity extends AppCompatActivity {
                 db.favoriteDao().insert(newFavorite);
                 isFavorite = true;
             }
-            runOnUiThread(() -> updateFavoriteIcon(iconFavorite, true));
+            runOnUiThread(() -> updateFavoriteVisual(iconFavorite, txtFavorite, true));
         });
     }
 
-    private void checkIfFavorite(ImageView iconFavorite){
+    private void checkIfFavorite(ImageView iconFavorite, TextView txtFavorite){
         executor.execute(() -> {
             FavoriteMovie existing = db.favoriteDao().getFavoriteMovie(currentMovie.getId());
             isFavorite = existing != null;
 
-            runOnUiThread(() -> updateFavoriteIcon(iconFavorite, false));
+            runOnUiThread(() -> updateFavoriteVisual(iconFavorite, txtFavorite, false));
         });
     }
 
-    private void updateFavoriteIcon(ImageView iconFavorite, boolean isClicked){
+    private void updateFavoriteVisual(ImageView iconFavorite,TextView txtFavorite, boolean isClicked){
         int color = isFavorite ? ContextCompat.getColor(this, R.color.light_green)
                 : ContextCompat.getColor(this, R.color.white);
         iconFavorite.setImageTintList(ColorStateList.valueOf(color));
 
-        String notice = isFavorite ? getString(R.string.add_favorite)
-                : getString(R.string.remove_favorite);
+        String txtButton = isFavorite ? getString(R.string.favorited) : getString(R.string.add_favorite);
+        txtFavorite.setText(txtButton);
+
+        String notice = isFavorite ? getString(R.string.added_to_favorites) : getString(R.string.removed_from_favorites);
 
         if (isClicked)
             Toast.makeText(this, notice, Toast.LENGTH_SHORT).show();

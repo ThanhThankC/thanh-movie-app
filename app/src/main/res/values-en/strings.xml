@@ -20,6 +20,9 @@
     <string name="hello_blank_fragment">Hello</string>
     <string name="favorite_list">My favorites</string>
     <string name="no_favorite_yet">No favorites yet</string>
+    <string name="added_to_favorites">Added to favorites</string>
+    <string name="removed_from_favorites">Removed from favorites</string>
+    <string name="favorited">Favorited</string>
     <string-array name="sort_options">
         <item>Newest</item>
         <item>Oldest</item>

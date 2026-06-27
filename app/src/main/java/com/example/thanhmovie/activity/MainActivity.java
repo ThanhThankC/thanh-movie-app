@@ -10,22 +10,26 @@ import com.example.thanhmovie.R;
 import com.example.thanhmovie.fragment.FavoriteFragment;
 import com.example.thanhmovie.fragment.HomeFragment;
 import com.example.thanhmovie.fragment.SearchFragment;
+import com.example.thanhmovie.utils.OnScrollDirectionListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnScrollDirectionListener {
 
     private Fragment homeFragment;
     private Fragment searchFragment;
     private Fragment favoriteFragment;
     private Fragment oldFragment;
     private Fragment selectedFragment;
+    private BottomNavigationView bottomNav;
+    private boolean isNavVisible = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        bottomNav = findViewById(R.id.bottom_navigation);
 
         homeFragment = new HomeFragment();
         searchFragment = new SearchFragment();
@@ -61,5 +65,27 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         });
+    }
+
+    @Override
+    public void onScrollUp() {
+        if (isNavVisible) {
+            bottomNav.animate()
+                    .translationY(bottomNav.getHeight())
+                    .setDuration(200)
+                    .start();
+            isNavVisible = false;
+        }
+    }
+
+    @Override
+    public void onScrollDown() {
+        if (!isNavVisible) {
+            bottomNav.animate()
+                    .translationY(0)
+                    .setDuration(200)
+                    .start();
+            isNavVisible = true;
+        }
     }
 }

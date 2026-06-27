@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +25,7 @@ import com.example.thanhmovie.database.AppDatabase;
 import com.example.thanhmovie.database.FavoriteMovie;
 import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.util.GridSpanUtils;
+import com.example.thanhmovie.utils.OnScrollDirectionListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,8 @@ public class FavoriteFragment extends Fragment {
     List<Movie> favoriteMovies = new ArrayList<>();
     private RecyclerView recyclerView;
     private MovieAdapter favoriteAdapter;
+    private OnScrollDirectionListener scrollListener;
+    private boolean isHeaderVisible = true;
     private int currentSortIndex = 0;
 
     @Override
@@ -56,7 +60,16 @@ public class FavoriteFragment extends Fragment {
         favoriteAdapter = new MovieAdapter(favoriteMovies);
         recyclerView.setAdapter(favoriteAdapter);
 
+        setupScrollBehavior(view);
         loadFavorites();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnScrollDirectionListener) {
+            scrollListener = (OnScrollDirectionListener) context;
+        }
     }
 
     private void setupSpinnerSort(View view, Context context){
@@ -75,6 +88,28 @@ public class FavoriteFragment extends Fragment {
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
+    private void setupScrollBehavior(View view){
+        Spinner spinnerSort = view.findViewById(R.id.spinner_favorite_sort);
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                if (dy > 0 && isHeaderVisible) {
+                    int headerHeight = spinnerSort.getHeight() + 80;
+                    spinnerSort.animate().translationY(-headerHeight).setDuration(200).start();
+                    isHeaderVisible = false;
+                    if (scrollListener != null) scrollListener.onScrollUp();
+                } else if (dy < 0 && !isHeaderVisible) {
+                    spinnerSort.animate().translationY(0).setDuration(200).start();
+                    isHeaderVisible = true;
+                    if (scrollListener != null) scrollListener.onScrollDown();
+                }
+            }
         });
     }
 

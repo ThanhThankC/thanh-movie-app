@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="3dp"
+    android:background="@drawable/rounded_dropdown_bg"
     android:drawableEnd="@drawable/ic_x_filter"
     android:paddingEnd="5dp"
+    android:paddingStart="5dp"
     android:textColor="@color/white"
     android:textSize="16sp" />

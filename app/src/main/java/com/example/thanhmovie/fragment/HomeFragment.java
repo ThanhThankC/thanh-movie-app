@@ -1,10 +1,13 @@
 package com.example.thanhmovie.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.NestedScrollingChild2;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,6 +32,7 @@ import com.example.thanhmovie.model.GenreModel;
 import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.model.MovieResponse;
 import com.example.thanhmovie.utils.Constants;
+import com.example.thanhmovie.utils.OnScrollDirectionListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +48,8 @@ public class HomeFragment extends Fragment {
     private final List<GenreModel> genreSections = new ArrayList<>();
     private final Handler sliderHandler = new Handler(Looper.getMainLooper());
     private Runnable sliderRunnable;
+    private OnScrollDirectionListener scrollListener;
+    private boolean isHeaderVisible = true;
     private static final long SLIDE_DELAY = 3000;
 
     @Override
@@ -66,6 +72,15 @@ public class HomeFragment extends Fragment {
 
         setupGenreSections();
         renderGenreSections();
+        setupScrollBehavior(view);
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnScrollDirectionListener) {
+            scrollListener = (OnScrollDirectionListener) context;
+        }
     }
 
     @Override
@@ -153,6 +168,24 @@ public class HomeFragment extends Fragment {
 
             layoutGenresContainer.addView(view);
         }
+    }
+
+    private void setupScrollBehavior(View view){
+        NestedScrollView scrollHome = view.findViewById(R.id.scroll_home);
+        View headerView = view.findViewById(R.id.layout_header);
+
+        scrollHome.setOnScrollChangeListener((NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            if (scrollY > oldScrollY && scrollY > 50 && isHeaderVisible) {
+                int headerHeight = headerView.getHeight() + 80;
+                headerView.animate().translationY(-headerHeight).setDuration(200).start();
+                isHeaderVisible = false;
+                if (scrollListener != null) scrollListener.onScrollUp();
+            } else if (scrollY < oldScrollY && !isHeaderVisible) {
+                headerView.animate().translationY(0).setDuration(200).start();
+                isHeaderVisible = true;
+                if (scrollListener != null) scrollListener.onScrollDown();
+            }
+        });
     }
 
     private void loadSlideMovies(List<Movie> targetList, SlideAdapter adapter){
