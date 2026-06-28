@@ -1,4 +1,4 @@
-package com.example.thanhmovie.util;
+package com.example.thanhmovie.utils;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -6,7 +6,7 @@ import android.util.DisplayMetrics;
 
 public class GridSpanUtils {
 
-    private static final int DEFAULT_COLUMN_WIDTH_DP = 140;
+    private static final int DEFAULT_COLUMN_WIDTH_DP = 180;
 
     public static int calculateSpanCount(Context context) {
         return calculateSpanCount(context, DEFAULT_COLUMN_WIDTH_DP);

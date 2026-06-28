@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="3dp"
+    android:layout_margin="7dp"
     android:clipToOutline="true"
     android:orientation="vertical"
     tools:targetApi="31">
@@ -23,6 +23,8 @@
         android:layout_height="49dp"
         android:layout_marginTop="4dp"
         android:layout_marginBottom="10dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
         android:ellipsize="end"
         android:maxLines="2"
         android:textAlignment="center"

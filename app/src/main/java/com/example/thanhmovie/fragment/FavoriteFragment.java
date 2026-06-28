@@ -25,7 +25,7 @@ import com.example.thanhmovie.adapter.MovieAdapter;
 import com.example.thanhmovie.database.AppDatabase;
 import com.example.thanhmovie.database.FavoriteMovie;
 import com.example.thanhmovie.model.Movie;
-import com.example.thanhmovie.util.GridSpanUtils;
+import com.example.thanhmovie.utils.GridSpanUtils;
 import com.example.thanhmovie.utils.LocaleManager;
 import com.example.thanhmovie.utils.OnScrollDirectionListener;
 import com.example.thanhmovie.utils.SettingPopupHelper;

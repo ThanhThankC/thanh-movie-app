@@ -44,15 +44,21 @@ public class MainActivity extends AppCompatActivity implements OnScrollDirection
         searchFragment = new SearchFragment();
         favoriteFragment = new FavoriteFragment();
 
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.fragment_container, homeFragment)
-                .add(R.id.fragment_container, searchFragment).hide(searchFragment)
-                .add(R.id.fragment_container, favoriteFragment).hide(favoriteFragment)
-                .commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, favoriteFragment, "favorite").hide(favoriteFragment)
+                    .add(R.id.fragment_container, searchFragment, "search").hide(searchFragment)
+                    .add(R.id.fragment_container, homeFragment, "home")
+                    .commit();
+            oldFragment = homeFragment;
+        } else {
+            homeFragment = getSupportFragmentManager().findFragmentByTag("home");
+            searchFragment = getSupportFragmentManager().findFragmentByTag("search");
+            favoriteFragment = getSupportFragmentManager().findFragmentByTag("favorite");
+            oldFragment = getSupportFragmentManager().getFragments().stream()
+                    .filter(f -> !f.isHidden()).findFirst().orElse(homeFragment);
+        }
 
-        oldFragment = homeFragment;
-
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnItemSelectedListener(item -> {
 
             int id = item.getItemId();

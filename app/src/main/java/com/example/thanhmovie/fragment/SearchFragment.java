@@ -91,7 +91,7 @@ public class SearchFragment extends Fragment {
         if (getContext() != null)
             historyManager = new SearchHistoryManager(getContext());
 
-        int spanCount = com.example.thanhmovie.util.GridSpanUtils.calculateSpanCount(getContext());
+        int spanCount = com.example.thanhmovie.utils.GridSpanUtils.calculateSpanCount(getContext());
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(),spanCount));
 
         suggestRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

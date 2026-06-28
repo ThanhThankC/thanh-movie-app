@@ -1,12 +1,6 @@
 package com.example.thanhmovie.utils;
 
-import static android.provider.Settings.System.getString;
-
 import android.content.Context;
-
-import com.example.thanhmovie.R;
-
-import java.util.List;
 
 public class Constants {
     public static final String API_KEY = "98eb6e953b75d453b78cce03db9f03df";
