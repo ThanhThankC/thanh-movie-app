@@ -6,7 +6,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.NestedScrollingChild2;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,6 +33,7 @@ import com.example.thanhmovie.model.MovieResponse;
 import com.example.thanhmovie.utils.Constants;
 import com.example.thanhmovie.utils.OnScrollDirectionListener;
 import com.example.thanhmovie.utils.SettingPopupHelper;
+import com.facebook.shimmer.ShimmerFrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -156,7 +156,7 @@ public class HomeFragment extends Fragment {
             View view = inflater.inflate(R.layout.item_genre_section, layoutGenresContainer, false);
 
             TextView txtTitle = view.findViewById(R.id.txt_genre_title);
-            RecyclerView recyclerGenre = view.findViewById(R.id.recycler_gener);
+            RecyclerView recyclerGenre = view.findViewById(R.id.recycler_genre);
 
             txtTitle.setText(genre.getGenreName());
 

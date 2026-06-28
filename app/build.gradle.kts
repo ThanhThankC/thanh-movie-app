@@ -51,4 +51,5 @@ dependencies {
     implementation("androidx.room:room-runtime:2.8.4")
     implementation("com.google.android.flexbox:flexbox:3.0.0")
     annotationProcessor("androidx.room:room-compiler:2.8.4")
+    implementation("com.facebook.shimmer:shimmer:0.5.0")
 }
