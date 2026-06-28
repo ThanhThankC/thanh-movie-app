@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -25,7 +26,9 @@ import com.example.thanhmovie.database.AppDatabase;
 import com.example.thanhmovie.database.FavoriteMovie;
 import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.util.GridSpanUtils;
+import com.example.thanhmovie.utils.LocaleManager;
 import com.example.thanhmovie.utils.OnScrollDirectionListener;
+import com.example.thanhmovie.utils.SettingPopupHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +64,7 @@ public class FavoriteFragment extends Fragment {
         recyclerView.setAdapter(favoriteAdapter);
 
         setupScrollBehavior(view);
+        setupSettings(view);
         loadFavorites();
     }
 
@@ -113,6 +117,11 @@ public class FavoriteFragment extends Fragment {
         });
     }
 
+    private void setupSettings(View view){
+        ImageView btnSettings = view.findViewById(R.id.btn_settings);
+        btnSettings.setOnClickListener(v -> SettingPopupHelper.showSettingsPopup(getContext(), v));
+    }
+
     @Override
     public void onResume(){
         super.onResume();
@@ -124,10 +133,13 @@ public class FavoriteFragment extends Fragment {
         executor.execute(() -> {
             var dao = db.favoriteDao();
             List<FavoriteMovie> favorites;
+            String currentLang = LocaleManager.getLocale(getContext());
 
             switch (currentSortIndex) {
                 case 1: favorites = dao.getAllSortByOldest(); break;
-                case 2: favorites = dao.getAllSortByTitle(); break;
+                case 2:
+                    favorites = currentLang.equals("en") ? dao.getAllSortByTitleEn() : dao.getAllSortByTitleVi();
+                    break;
                 case 3: favorites = dao.getAllSortByRating(); break;
                 case 4: favorites = dao.getAllSortByPopularity(); break;
                 default: favorites = dao.getAllSortByNewest();
@@ -156,10 +168,10 @@ public class FavoriteFragment extends Fragment {
     private Movie convertToMovie(FavoriteMovie fav){
         Movie movie = new Movie();
         movie.setId(fav.getId());
-        movie.setTitle(fav.getTitle());
+        movie.setTitle(fav.getTitleByLocale(getContext()));
         movie.setPosterPath(fav.getPosterPath());
         movie.setBackdropPath(fav.getBackdropPath());
-        movie.setOverview(fav.getOverview());
+        movie.setOverview(fav.getOverviewByLocale(getContext()));
         movie.setVoteAverage(fav.getVoteAverage());
         movie.setReleaseDate(fav.getReleaseDate());
         movie.setPopularity(fav.getPopularity());

@@ -12,9 +12,6 @@
     <string name="share">Chia sẻ</string>
     <string name="no_result">Không tìm thấy kết quả</string>
     <string name="no_internet">Không có kết nối mạng</string>
-    <string name="genre_action">Hành động</string>
-    <string name="genre_romance">Tình cảm</string>
-    <string name="genre_comedy">Hài</string>
     <string name="genre_fiction">Khoa học viễn tưởng</string>
     <string name="genre">Thể loại</string>
     <string name="release_date">Ngày phát hành</string>
@@ -37,4 +34,23 @@
     <string name="delete_history_message">Xóa từ khóa \"%s\" khỏi lịch sử tìm kiếm?</string>
     <string name="delete_history_positive">Xóa</string>
     <string name="delete_history_negative">Hủy</string>
+    <string name="theme_light">Sáng</string>
+    <string name="theme_dark">Tối</string>
+    <string name="setting_language">Ngôn ngữ</string>
+    <string name="genre_action">Hành động</string>
+    <string name="genre_comedy">Hài</string>
+    <string name="genre_romance">Tình cảm</string>
+    <string name="genre_horror">Kinh dị</string>
+    <string name="genre_drama">Tâm lý</string>
+    <string name="genre_adventure">Phiêu lưu</string>
+    <string name="genre_animation">Hoạt hình</string>
+    <string name="genre_crime">Hình sự</string>
+    <string name="genre_documentary">Tài liệu</string>
+    <string name="genre_family">Gia đình</string>
+    <string name="genre_fantasy">Viễn tưởng</string>
+    <string name="genre_mystery">Bí ẩn</string>
+    <string name="genre_scifi">Khoa học viễn tưởng</string>
+    <string name="genre_thriller">Giật gân</string>
+    <string name="genre_war">Chiến tranh</string>
+    <string name="genre_other">Khác</string>
 </resources>

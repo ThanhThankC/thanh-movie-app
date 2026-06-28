@@ -291,7 +291,7 @@ public class SearchFragment extends Fragment {
 
     private void searchMovies(String query, int page, boolean isSuggest){
         isLoading = true;
-        RetrofitClient.getInstance().getApiService().searchMovies(Constants.API_KEY, query, Constants.LANGUAGE_VI, page)
+        RetrofitClient.getInstance().getApiService().searchMovies(Constants.API_KEY, query, Constants.getApiLanguage(getContext()), page)
                 .enqueue(new Callback<>() {
                     @SuppressLint("NotifyDataSetChanged")
                     @Override

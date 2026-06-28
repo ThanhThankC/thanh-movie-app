@@ -1,5 +1,6 @@
 package com.example.thanhmovie.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
@@ -17,13 +18,20 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.thanhmovie.R;
+import com.example.thanhmovie.api.RetrofitClient;
 import com.example.thanhmovie.database.AppDatabase;
 import com.example.thanhmovie.database.FavoriteMovie;
 import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.utils.Constants;
+import com.example.thanhmovie.utils.GenreHelper;
+import com.example.thanhmovie.utils.LocaleManager;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MovieDetailActivity extends AppCompatActivity {
     private AppDatabase db;
@@ -31,6 +39,11 @@ public class MovieDetailActivity extends AppCompatActivity {
     private Movie currentMovie;
     private boolean isFavorite;
     private static final long SHARE_CLICKED_DELAY = 600;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleManager.applyLocale(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +76,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         txtTitle.setText(currentMovie.getTitle());
         txtRating.setText(String.format("%.1f/10", currentMovie.getVoteAverage()));
         txtReleaseDate.setText(currentMovie.getReleaseDate());
-        txtGenre.setText(Constants.getGenreName(currentMovie.getGenreIds()));
+        txtGenre.setText(GenreHelper.getGenreName(this, currentMovie.getGenreIds()));
         txtOverview.setText(currentMovie.getOverview());
 
         double rating = currentMovie.getVoteAverage();
@@ -108,25 +121,55 @@ public class MovieDetailActivity extends AppCompatActivity {
                 FavoriteMovie existing = db.favoriteDao().getFavoriteMovie(currentMovie.getId());
                 db.favoriteDao().delete(existing);
                 isFavorite = false;
+                runOnUiThread(() -> updateFavoriteVisual(iconFavorite, txtFavorite, true));
             }
             else {
                 if (currentMovie == null) return;
-                FavoriteMovie newFavorite = new FavoriteMovie(
-                        currentMovie.getId(),
-                        currentMovie.getTitle(),
-                        currentMovie.getPosterPath(),
-                        currentMovie.getBackdropPath(),
-                        currentMovie.getOverview(),
-                        currentMovie.getVoteAverage(),
-                        currentMovie.getReleaseDate(),
-                        currentMovie.getPopularity(),
-                        System.currentTimeMillis()
-                );
-                db.favoriteDao().insert(newFavorite);
-                isFavorite = true;
+                fetchBothLanguageAndSave(iconFavorite, txtFavorite);
             }
-            runOnUiThread(() -> updateFavoriteVisual(iconFavorite, txtFavorite, true));
         });
+    }
+
+    private void fetchBothLanguageAndSave(ImageView iconFavorite, TextView txtFavorite){
+        RetrofitClient.getInstance().getApiService()
+            .getMovieDetail(currentMovie.getId(), Constants.API_KEY, Constants.LANGUAGE_VI)
+            .enqueue(new Callback<>() {
+                @Override
+                public void onResponse(Call<Movie> call, Response<Movie> responseVi) {
+                    if (!responseVi.isSuccessful() || responseVi.body() == null) return;
+                    String titleVi = responseVi.body().getTitle();
+                    String overviewVi = responseVi.body().getOverview();
+
+                    RetrofitClient.getInstance().getApiService()
+                        .getMovieDetail(currentMovie.getId(), Constants.API_KEY, Constants.LANGUAGE_EN)
+                        .enqueue(new Callback<>() {
+                            @Override
+                            public void onResponse(Call<Movie> call, Response<Movie> responseEn) {
+                                if (!responseEn.isSuccessful() || responseEn.body() == null) return;
+                                String titleEn = responseEn.body().getTitle();
+                                String overviewEn = responseEn.body().getOverview();
+
+                                FavoriteMovie favMovie = new FavoriteMovie(
+                                        currentMovie.getId(), titleVi, titleEn,
+                                        currentMovie.getPosterPath(), currentMovie.getBackdropPath(),
+                                        overviewVi, overviewEn,
+                                        currentMovie.getVoteAverage(), currentMovie.getReleaseDate(),
+                                        currentMovie.getPopularity(), System.currentTimeMillis()
+                                );
+                                executor.execute(() -> {
+                                    db.favoriteDao().insert(favMovie);
+                                    isFavorite = true;
+                                    runOnUiThread(() -> updateFavoriteVisual(iconFavorite, txtFavorite, true));
+                                });
+                            }
+
+                            @Override
+                            public void onFailure(Call<Movie> call, Throwable t) {}
+                        });
+                }
+                @Override
+                public void onFailure(Call<Movie> call, Throwable t) {}
+            });
     }
 
     private void checkIfFavorite(ImageView iconFavorite, TextView txtFavorite){

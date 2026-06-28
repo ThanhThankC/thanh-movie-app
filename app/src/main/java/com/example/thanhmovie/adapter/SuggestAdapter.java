@@ -13,6 +13,7 @@ import com.example.thanhmovie.R;
 import com.example.thanhmovie.activity.MovieDetailActivity;
 import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.utils.Constants;
+import com.example.thanhmovie.utils.GenreHelper;
 
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class SuggestAdapter extends RecyclerView.Adapter<SuggestAdapter.SuggestV
         String year = (releaseDate != null && releaseDate.length() >= 4)
                 ? releaseDate.substring(0, 4) : "N/A";
         holder.txtYear.setText(year);
-        holder.txtGenre.setText(Constants.getGenreName(movie.getGenreIds()));
+        holder.txtGenre.setText(GenreHelper.getGenreName(holder.itemView.getContext(),movie.getGenreIds()));
 
         holder.itemView.setOnClickListener(v ->{
             if (listener != null) {

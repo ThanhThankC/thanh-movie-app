@@ -33,6 +33,7 @@ import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.model.MovieResponse;
 import com.example.thanhmovie.utils.Constants;
 import com.example.thanhmovie.utils.OnScrollDirectionListener;
+import com.example.thanhmovie.utils.SettingPopupHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +71,7 @@ public class HomeFragment extends Fragment {
 
         loadSlideMovies(slideList, slideAdapter);
 
+        setupSettings(view);
         setupGenreSections();
         renderGenreSections();
         setupScrollBehavior(view);
@@ -98,6 +100,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupGenreSections() {
+        genreSections.add(new GenreModel(16, getString(R.string.genre_animation)));
+        genreSections.add(new GenreModel(27, getString(R.string.genre_horror)));
         genreSections.add(new GenreModel(28, getString(R.string.genre_action)));
         genreSections.add(new GenreModel(10749, getString(R.string.genre_romance)));
         genreSections.add(new GenreModel(35, getString(R.string.genre_comedy)));
@@ -188,9 +192,14 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    private void setupSettings(View view){
+        ImageView btnSettings = view.findViewById(R.id.btn_settings);
+        btnSettings.setOnClickListener(v -> SettingPopupHelper.showSettingsPopup(getContext(), v));
+    }
+
     private void loadSlideMovies(List<Movie> targetList, SlideAdapter adapter){
         RetrofitClient.getInstance().getApiService()
-                .getPopularMovies(Constants.API_KEY, Constants.LANGUAGE_VI, 1)
+                .getPopularMovies(Constants.API_KEY, Constants.getApiLanguage(getContext()), 1)
                 .enqueue(new Callback<>() {
                     @SuppressLint("NotifyDataSetChanged")
                     @Override
@@ -228,7 +237,7 @@ public class HomeFragment extends Fragment {
 
     private void loadMoviesByGenre(int genreId, List<Movie> targetList, MovieAdapter adapter){
         RetrofitClient.getInstance().getApiService()
-                .getMoviesByGenre(Constants.API_KEY, Constants.LANGUAGE_VI, genreId, 1)
+                .getMoviesByGenre(Constants.API_KEY, Constants.getApiLanguage(getContext()), genreId, 1)
                 .enqueue(new Callback<>() {
                     @SuppressLint("NotifyDataSetChanged")
                     @Override

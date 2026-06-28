@@ -1,6 +1,8 @@
 package com.example.thanhmovie.activity;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +13,8 @@ import com.example.thanhmovie.fragment.FavoriteFragment;
 import com.example.thanhmovie.fragment.HomeFragment;
 import com.example.thanhmovie.fragment.SearchFragment;
 import com.example.thanhmovie.utils.OnScrollDirectionListener;
+import com.example.thanhmovie.utils.LocaleManager;
+import com.example.thanhmovie.utils.SettingPopupHelper;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 
@@ -23,6 +27,11 @@ public class MainActivity extends AppCompatActivity implements OnScrollDirection
     private Fragment selectedFragment;
     private BottomNavigationView bottomNav;
     private boolean isNavVisible = true;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleManager.applyLocale(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

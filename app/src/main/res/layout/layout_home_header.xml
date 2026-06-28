@@ -31,8 +31,9 @@
         android:textSize="20sp" />
 
     <ImageView
-        android:id="@+id/logo_notice"
+        android:id="@+id/btn_settings"
+        android:padding="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_x_notification" />
+        android:src="@drawable/ic_x_settings" />
 </LinearLayout>

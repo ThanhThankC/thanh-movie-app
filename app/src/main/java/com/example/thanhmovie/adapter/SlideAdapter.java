@@ -17,6 +17,7 @@ import com.example.thanhmovie.R;
 import com.example.thanhmovie.activity.MovieDetailActivity;
 import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.utils.Constants;
+import com.example.thanhmovie.utils.GenreHelper;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -57,7 +58,7 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.SlideViewHol
 
         holder.txtTitle.setText(movie.getTitle());
         holder.txtRating.setText(String.format("%.1f/10", movie.getVoteAverage()));
-        holder.txtGenre.setText(Constants.getGenreName(movie.getGenreIds()));
+        holder.txtGenre.setText(GenreHelper.getGenreName(holder.itemView.getContext(),movie.getGenreIds()));
         holder.txtYear.setText(movie.getReleaseDate().substring(0,4));
 
         Glide.with(holder.itemView.getContext())
@@ -68,12 +69,13 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.SlideViewHol
                 .load(Constants.IMAGE_BASE_URL + movie.getPosterPath())
                 .transform(new CenterCrop(), new RoundedCorners(20))
                 .into(holder.imgPoster);
-
         holder.itemView.setOnClickListener(v ->{
             Intent intent = new Intent(v.getContext(), MovieDetailActivity.class);
             intent.putExtra("movie_object", movie);
             v.getContext().startActivity(intent);
         });
+
+
     }
 
     @Override

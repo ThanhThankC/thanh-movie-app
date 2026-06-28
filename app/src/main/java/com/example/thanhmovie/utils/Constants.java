@@ -1,5 +1,11 @@
 package com.example.thanhmovie.utils;
 
+import static android.provider.Settings.System.getString;
+
+import android.content.Context;
+
+import com.example.thanhmovie.R;
+
 import java.util.List;
 
 public class Constants {
@@ -9,15 +15,8 @@ public class Constants {
     public static final String LANGUAGE_VI = "vi-VN";
     public static final String LANGUAGE_EN = "en-US";
 
-    public static String getGenreName(List<Integer> genreIds){
-        if (genreIds == null || genreIds.isEmpty()) return "Khác";
-        int id = genreIds.get(0);
-
-        if (id == 28) return "Hành động";
-        if (id == 35) return "Hài";
-        if (id == 10749) return "Tình cảm";
-        if (id == 27) return "Kinh dị";
-        if (id == 18) return "Tâm lý";
-        return "Khác";
+    public static String getApiLanguage(Context context) {
+        String lang = LocaleManager.getLocale(context);
+        return lang.equals("en") ? LANGUAGE_EN : LANGUAGE_VI;
     }
 }
