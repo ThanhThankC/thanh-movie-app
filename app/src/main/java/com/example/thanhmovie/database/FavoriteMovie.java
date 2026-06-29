@@ -47,8 +47,8 @@ public class FavoriteMovie {
     }
     public String getPosterPath() { return posterPath; }
     public String getBackdropPath() { return backdropPath; }
-    public String getOverviewVi() { return titleVi; }
-    public String getOverviewEn() { return titleEn; }
+    public String getOverviewVi() { return overviewVi; }
+    public String getOverviewEn() { return overviewEn; }
     public String getOverviewByLocale(Context context) {
         String lang = LocaleManager.getLocale(context);
         return lang.equals("en") ? overviewEn : overviewVi;
