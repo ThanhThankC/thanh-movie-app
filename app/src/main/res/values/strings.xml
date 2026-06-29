@@ -9,6 +9,8 @@
     <string name="added_to_favorites">Đã thêm vào danh sách yêu thích</string>
     <string name="removed_from_favorites">Đã gỡ khỏi danh sách yêu thích</string>
     <string name="favorited">Đã yêu thích</string>
+    <string name="trailer">Xem trailer</string>
+    <string name="trailer_not_found">Không tìm thấy trailer</string>
     <string name="share">Chia sẻ</string>
     <string name="no_result">Không tìm thấy kết quả</string>
     <string name="no_internet">Không có kết nối mạng</string>

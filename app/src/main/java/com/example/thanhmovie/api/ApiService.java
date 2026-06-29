@@ -2,6 +2,7 @@ package com.example.thanhmovie.api;
 
 import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.model.MovieResponse;
+import com.example.thanhmovie.model.VideoResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -30,6 +31,12 @@ public interface ApiService {
             @Path("movie_id") int movieId,
             @Query("api_key") String apiKey,
             @Query("language") String language
+    );
+
+    @GET("movie/{movie_id}/videos")
+    Call<VideoResponse> getMovieVideos(
+            @Path("movie_id") int movieId,
+            @Query("api_key") String apiKey
     );
 
     @GET("search/movie")

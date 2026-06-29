@@ -1,10 +1,8 @@
 package com.example.thanhmovie.activity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.os.Handler;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,27 +16,20 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.thanhmovie.R;
-import com.example.thanhmovie.api.RetrofitClient;
-import com.example.thanhmovie.database.AppDatabase;
-import com.example.thanhmovie.database.FavoriteMovie;
 import com.example.thanhmovie.model.Movie;
 import com.example.thanhmovie.utils.Constants;
+import com.example.thanhmovie.utils.MovieDetailFavoriteHelper;
 import com.example.thanhmovie.utils.GenreHelper;
 import com.example.thanhmovie.utils.LocaleManager;
+import com.example.thanhmovie.utils.MovieDetailShareHelper;
+import com.example.thanhmovie.utils.MovieDetailTrailerHelper;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class MovieDetailActivity extends AppCompatActivity {
-    private AppDatabase db;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private Movie currentMovie;
     private boolean isFavorite;
-    private static final long SHARE_CLICKED_DELAY = 600;
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -51,11 +42,10 @@ public class MovieDetailActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_movie_detail);
 
-        db = AppDatabase.getInstance(this);
-
         currentMovie = (Movie) getIntent().getSerializableExtra("movie_object");
         setupDetailScreen();
         setupFavoriteButton();
+        setupTrailerButton();
         setupShareButton();
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
@@ -93,93 +83,44 @@ public class MovieDetailActivity extends AppCompatActivity {
         TextView txtFavorite = findViewById(R.id.txt_btn_favorite);
         LinearLayout btnFavorite = findViewById(R.id.btn_favorite);
 
-        checkIfFavorite(iconFavorite, txtFavorite);
+        MovieDetailFavoriteHelper.checkIfFavorite(this, currentMovie, new MovieDetailFavoriteHelper.OnFavoriteStateListener() {
+            @Override
+            public void onStateChanged(boolean isFav, boolean isClicked) {
+                runOnUiThread(() -> {isFavorite = isFav; updateFavoriteVisual(iconFavorite, txtFavorite, isClicked);});
+            }
+        });
 
-        btnFavorite.setOnClickListener(v -> toggleFavorite(iconFavorite, txtFavorite));
+        btnFavorite.setOnClickListener(v -> MovieDetailFavoriteHelper.toggleFavorite(this, currentMovie, isFavorite,
+            new MovieDetailFavoriteHelper.OnFavoriteStateListener() {
+                @Override
+                public void onStateChanged(boolean isFav, boolean isClicked) {
+                    runOnUiThread(() -> {isFavorite = isFav; updateFavoriteVisual(iconFavorite, txtFavorite, isClicked);});
+                }
+            }));
+    }
+
+    private void setupTrailerButton(){
+        LinearLayout btnTrailer = findViewById(R.id.btn_trailer);
+        ImageView iconTrailer = findViewById(R.id.icon_trailer);
+
+        btnTrailer.setOnClickListener(v -> {
+            MovieDetailTrailerHelper.handleTrailerButtonClick(this, iconTrailer);
+            MovieDetailTrailerHelper.loadAndOpenTrailer(this, currentMovie.getId(), new MovieDetailTrailerHelper.OnTrailerResultListener() {
+                @Override
+                public void onTrailerNotFound() {
+                    runOnUiThread(() -> Toast.makeText(MovieDetailActivity.this, getString(R.string.trailer_not_found), Toast.LENGTH_SHORT).show());
+                }
+            });
+        });
     }
 
     private void setupShareButton(){
         LinearLayout btnShare = findViewById(R.id.btn_share);
         ImageView iconShare = findViewById(R.id.icon_share);
 
-        btnShare.setOnClickListener(v -> {
-            iconShare.setImageTintList(ColorStateList
-                    .valueOf(ContextCompat.getColor(this, R.color.light_green)));
-
-            shareMovie();
-
-            new Handler().postDelayed(() -> {
-                iconShare.setImageTintList(ColorStateList
-                        .valueOf(ContextCompat.getColor(this, R.color.white)));
-            }, SHARE_CLICKED_DELAY);
-        });
+        btnShare.setOnClickListener(v -> MovieDetailShareHelper.handleShareButtonClick(iconShare, this, currentMovie));
     }
 
-    private void toggleFavorite(ImageView iconFavorite, TextView txtFavorite){
-        executor.execute(() -> {
-            if (isFavorite){
-                FavoriteMovie existing = db.favoriteDao().getFavoriteMovie(currentMovie.getId());
-                db.favoriteDao().delete(existing);
-                isFavorite = false;
-                runOnUiThread(() -> updateFavoriteVisual(iconFavorite, txtFavorite, true));
-            }
-            else {
-                if (currentMovie == null) return;
-                fetchBothLanguageAndSave(iconFavorite, txtFavorite);
-            }
-        });
-    }
-
-    private void fetchBothLanguageAndSave(ImageView iconFavorite, TextView txtFavorite){
-        RetrofitClient.getInstance().getApiService()
-            .getMovieDetail(currentMovie.getId(), Constants.API_KEY, Constants.LANGUAGE_VI)
-            .enqueue(new Callback<>() {
-                @Override
-                public void onResponse(Call<Movie> call, Response<Movie> responseVi) {
-                    if (!responseVi.isSuccessful() || responseVi.body() == null) return;
-                    String titleVi = responseVi.body().getTitle();
-                    String overviewVi = responseVi.body().getOverview();
-
-                    RetrofitClient.getInstance().getApiService()
-                        .getMovieDetail(currentMovie.getId(), Constants.API_KEY, Constants.LANGUAGE_EN)
-                        .enqueue(new Callback<>() {
-                            @Override
-                            public void onResponse(Call<Movie> call, Response<Movie> responseEn) {
-                                if (!responseEn.isSuccessful() || responseEn.body() == null) return;
-                                String titleEn = responseEn.body().getTitle();
-                                String overviewEn = responseEn.body().getOverview();
-
-                                FavoriteMovie favMovie = new FavoriteMovie(
-                                        currentMovie.getId(), titleVi, titleEn,
-                                        currentMovie.getPosterPath(), currentMovie.getBackdropPath(),
-                                        overviewVi, overviewEn,
-                                        currentMovie.getVoteAverage(), currentMovie.getReleaseDate(),
-                                        currentMovie.getPopularity(), System.currentTimeMillis()
-                                );
-                                executor.execute(() -> {
-                                    db.favoriteDao().insert(favMovie);
-                                    isFavorite = true;
-                                    runOnUiThread(() -> updateFavoriteVisual(iconFavorite, txtFavorite, true));
-                                });
-                            }
-
-                            @Override
-                            public void onFailure(Call<Movie> call, Throwable t) {}
-                        });
-                }
-                @Override
-                public void onFailure(Call<Movie> call, Throwable t) {}
-            });
-    }
-
-    private void checkIfFavorite(ImageView iconFavorite, TextView txtFavorite){
-        executor.execute(() -> {
-            FavoriteMovie existing = db.favoriteDao().getFavoriteMovie(currentMovie.getId());
-            isFavorite = existing != null;
-
-            runOnUiThread(() -> updateFavoriteVisual(iconFavorite, txtFavorite, false));
-        });
-    }
 
     private void updateFavoriteVisual(ImageView iconFavorite,TextView txtFavorite, boolean isClicked){
         int color = isFavorite ? ContextCompat.getColor(this, R.color.light_green)
@@ -193,20 +134,5 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         if (isClicked)
             Toast.makeText(this, notice, Toast.LENGTH_SHORT).show();
-    }
-
-    private void shareMovie(){
-        String shareText = getString(R.string.share_movie_text,
-                currentMovie.getTitle(),
-                currentMovie.getVoteAverage(),
-                currentMovie.getOverview()
-        );
-        String chooserTitle = getString(R.string.share_movie_title);
-
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plant");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
-
-        startActivity(Intent.createChooser(shareIntent, chooserTitle));
     }
 }
