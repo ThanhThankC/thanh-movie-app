@@ -12,6 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:layout_marginStart="10dp"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -27,7 +28,10 @@
             android:id="@+id/txt_detail_genre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/genre_action"
+            android:layout_marginTop="4dp"
+            android:maxLines="1"
+            android:gravity="center"
+            android:text="@string/genre_scifi"
             android:textColor="@color/white"
             android:textSize="14sp" />
     </LinearLayout>
@@ -51,6 +55,7 @@
             android:id="@+id/txt_detail_release"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:text="20/03/2004"
             android:textColor="@color/white"
             android:textSize="14sp" />

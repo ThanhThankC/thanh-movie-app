@@ -35,7 +35,12 @@ public class SearchInputHelper {
     }
 
     public static void setup(SearchState state, RecyclerView recyclerView,EditText edtSearch, TextView txtSeeMore, Listener listener){
-        onEditSearchChanged(state, edtSearch, listener);
+        if (!state.currentQuery.isEmpty()) {
+            edtSearch.setText(state.currentQuery);
+            edtSearch.setSelection(state.currentQuery.length());
+        }
+        else
+            onEditSearchChanged(state, edtSearch, listener);
         onEditSearchEnter(state,edtSearch, txtSeeMore, listener);
         onOutsideTouched(recyclerView, listener);
     }
@@ -84,6 +89,7 @@ public class SearchInputHelper {
         edtSearch.setOnClickListener(v ->{
             listener.onShowSuggest(!state.currentQuery.isEmpty());
             listener.onShowHistory(state.currentQuery.isEmpty());
+            edtSearch.setSelection(state.currentQuery.length());
         });
     }
 

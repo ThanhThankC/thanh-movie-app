@@ -18,6 +18,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,12 +33,14 @@ import com.example.thanhmovie.utils.SearchHistoryHelper;
 import com.example.thanhmovie.utils.SearchHistoryManager;
 import com.example.thanhmovie.utils.SearchInputHelper;
 import com.example.thanhmovie.utils.SearchState;
+import com.example.thanhmovie.viewmodel.SearchViewModel;
 import com.google.android.flexbox.FlexboxLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SearchFragment extends Fragment {
+    private SearchViewModel viewModel;
     private SearchState state;
     private RecyclerView suggestRecyclerView;
     private RecyclerView recyclerView;
@@ -75,6 +78,8 @@ public class SearchFragment extends Fragment {
         if (getContext() != null)
             historyManager = new SearchHistoryManager(getContext());
 
+        viewModel = new ViewModelProvider(this).get(SearchViewModel.class);
+
         int spanCount = com.example.thanhmovie.utils.GridSpanUtils.calculateSpanCount(getContext());
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(),spanCount));
 
@@ -98,6 +103,23 @@ public class SearchFragment extends Fragment {
     }
 
     private void initState(){
+        if (viewModel.state != null){
+            state = viewModel.state;
+            recyclerView.setAdapter(state.searchAdapter);
+            suggestRecyclerView.setAdapter(state.suggestAdapter);
+
+            state.suggestAdapter.setOnMovieClickListener(movie -> {
+                historyManager.addKeyword(movie.getTitle());
+                setupHistoryChips();
+            });
+
+            SearchApiHelper.onRecyclerScrolling(recyclerView, () -> {
+                state.nextPage();
+                searchMovie(false);
+            });
+            return;
+        }
+
         List<Movie> searchResultList = new ArrayList<>();
         MovieAdapter searchAdapter = new MovieAdapter(searchResultList);
         recyclerView.setAdapter(searchAdapter);
@@ -108,6 +130,7 @@ public class SearchFragment extends Fragment {
 
         state = new SearchState(searchResultList, searchAdapter,
                 suggestResultList, suggestAdapter);
+        viewModel.state = state;
 
         suggestAdapter.setOnMovieClickListener(movie -> {
             historyManager.addKeyword(movie.getTitle());

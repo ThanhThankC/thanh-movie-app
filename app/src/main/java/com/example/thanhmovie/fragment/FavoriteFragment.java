@@ -130,6 +130,7 @@ public class FavoriteFragment extends Fragment {
 
     @SuppressLint("NotifyDataSetChanged")
     private void loadFavorites(){
+        if (!isAdded()) return;
         executor.execute(() -> {
             var dao = db.favoriteDao();
             List<FavoriteMovie> favorites;
