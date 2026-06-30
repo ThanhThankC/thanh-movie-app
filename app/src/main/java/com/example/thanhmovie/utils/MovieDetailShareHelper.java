@@ -35,7 +35,7 @@ public class MovieDetailShareHelper {
         String chooserTitle = context.getString(R.string.share_movie_title);
 
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plant");
+        shareIntent.setType("text/plain");
         shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
 
         context.startActivity(Intent.createChooser(shareIntent, chooserTitle));
