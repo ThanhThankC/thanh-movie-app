@@ -62,7 +62,7 @@ public class SlideAdapter extends RecyclerView.Adapter<SlideAdapter.SlideViewHol
         SlideAdapter.SlideViewHolder holder = new SlideViewHolder(view);
         holder.shimmerBackdrop.startShimmer();
         holder.shimmerPoster.startShimmer();
-        return new SlideViewHolder(view);
+        return holder;
     }
 
     @Override

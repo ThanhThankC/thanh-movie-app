@@ -54,7 +54,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                 .inflate(R.layout.item_movie, parent, false);
         MovieViewHolder holder = new MovieViewHolder(view);
         holder.shimmerPoster.startShimmer();
-        return new MovieViewHolder(view);
+        return holder;
     }
 
     @Override
